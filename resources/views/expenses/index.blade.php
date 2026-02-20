@@ -244,6 +244,15 @@ function expensesData() {
             await this.fetchCategories();
             await this.fetchExpenses();
             this.filterCategoriesByType();
+
+            // Check for query parameters to auto-open form
+            const urlParams = new URLSearchParams(window.location.search);
+            const type = urlParams.get('type');
+            if (type === 'expense' || type === 'income') {
+                this.form.type = type;
+                this.filterCategoriesByType();
+                this.showModal = true;
+            }
         },
         async fetchExpenses(page = 1) {
             try {
@@ -352,10 +361,7 @@ function expensesData() {
             }
         },
         formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-            }).format(amount || 0);
+            return window.formatCurrency(amount);
         },
         formatDate(date) {
             return new Date(date).toLocaleDateString('en-US', {
