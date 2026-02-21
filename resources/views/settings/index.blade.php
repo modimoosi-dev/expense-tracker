@@ -150,7 +150,7 @@ function settingsData() {
             currency: 'USD'
         },
         form: {
-            user_id: 1,
+            user_id: {{ auth()->id() ?? 1 }},
             name: '',
             currency: 'USD'
         },
@@ -169,7 +169,7 @@ function settingsData() {
         },
         async fetchSettings() {
             try {
-                const response = await fetch('/api/v1/settings?user_id=1');
+                const response = await fetch('/api/v1/settings?user_id={{ auth()->id() ?? 1 }}');
                 if (response.ok) {
                     this.settings = await response.json();
                     this.form.name = this.settings.name;
@@ -197,7 +197,7 @@ function settingsData() {
                 const [categories, expenses, budgets] = await Promise.all([
                     fetch('/api/v1/categories').then(r => r.json()),
                     fetch('/api/v1/expenses').then(r => r.json()),
-                    fetch('/api/v1/budgets?user_id=1').then(r => r.json())
+                    fetch('/api/v1/budgets?user_id={{ auth()->id() ?? 1 }}').then(r => r.json())
                 ]);
 
                 this.stats.categories = categories.length || 0;
@@ -265,7 +265,7 @@ function settingsData() {
 
             const formData = new FormData();
             formData.append('profile_picture', file);
-            formData.append('user_id', 1);
+            formData.append('user_id', {{ auth()->id() ?? 1 }});
 
             try {
                 const response = await fetch('/api/v1/settings/profile-picture', {
@@ -279,6 +279,11 @@ function settingsData() {
                 if (response.ok) {
                     const data = await response.json();
                     this.settings.profile_picture = data.profile_picture;
+
+                    // Update header profile picture by dispatching custom event
+                    window.dispatchEvent(new CustomEvent('profile-updated', {
+                        detail: { profile_picture: data.profile_picture }
+                    }));
 
                     // Show success message
                     this.showSuccess = true;
@@ -297,12 +302,17 @@ function settingsData() {
             if (!confirm('Are you sure you want to remove your profile picture?')) return;
 
             try {
-                const response = await window.fetchWithCsrf('/api/v1/settings/profile-picture?user_id=1', {
+                const response = await window.fetchWithCsrf('/api/v1/settings/profile-picture?user_id={{ auth()->id() ?? 1 }}', {
                     method: 'DELETE'
                 });
 
                 if (response.ok) {
                     this.settings.profile_picture = null;
+
+                    // Update header profile picture by dispatching custom event
+                    window.dispatchEvent(new CustomEvent('profile-updated', {
+                        detail: { profile_picture: null }
+                    }));
 
                     // Show success message
                     this.showSuccess = true;

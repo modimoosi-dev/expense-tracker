@@ -140,6 +140,11 @@
             userId: {{ auth()->id() ?? 1 }},
             async init() {
                 await this.fetchUserProfile();
+
+                // Listen for profile picture updates
+                window.addEventListener('profile-updated', (event) => {
+                    this.userProfilePicture = event.detail.profile_picture || '';
+                });
             },
             async fetchUserProfile() {
                 try {
