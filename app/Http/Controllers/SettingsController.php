@@ -17,6 +17,7 @@ class SettingsController extends Controller
             'currency' => $user->currency ?? 'USD',
             'name' => $user->name,
             'email' => $user->email,
+            'profile_picture' => $user->profile_picture ? asset('storage/' . $user->profile_picture) : null,
         ]);
     }
 
@@ -37,6 +38,52 @@ class SettingsController extends Controller
         return response()->json([
             'message' => 'Settings updated successfully',
             'currency' => $user->currency,
+            'profile_picture' => $user->profile_picture ? asset('storage/' . $user->profile_picture) : null,
+        ]);
+    }
+
+    public function uploadProfilePicture(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $user = User::findOrFail($validated['user_id']);
+
+        // Delete old profile picture if exists
+        if ($user->profile_picture) {
+            \Storage::disk('public')->delete($user->profile_picture);
+        }
+
+        // Store new profile picture
+        $path = $request->file('profile_picture')->store('profile-pictures', 'public');
+
+        $user->update([
+            'profile_picture' => $path,
+        ]);
+
+        return response()->json([
+            'message' => 'Profile picture updated successfully',
+            'profile_picture' => asset('storage/' . $path),
+        ]);
+    }
+
+    public function deleteProfilePicture(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::findOrFail($validated['user_id']);
+
+        if ($user->profile_picture) {
+            \Storage::disk('public')->delete($user->profile_picture);
+            $user->update(['profile_picture' => null]);
+        }
+
+        return response()->json([
+            'message' => 'Profile picture removed successfully',
         ]);
     }
 

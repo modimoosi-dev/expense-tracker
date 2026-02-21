@@ -193,9 +193,8 @@ function categoriesData() {
                     : '/api/v1/categories';
                 const method = this.editingCategory ? 'PUT' : 'POST';
 
-                const response = await fetch(url, {
+                const response = await window.fetchWithCsrf(url, {
                     method: method,
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(this.form)
                 });
 
@@ -211,7 +210,7 @@ function categoriesData() {
             if (!confirm('Are you sure you want to delete this category?')) return;
 
             try {
-                const response = await fetch(`/api/v1/categories/${id}`, {
+                const response = await window.fetchWithCsrf(`/api/v1/categories/${id}`, {
                     method: 'DELETE'
                 });
 

@@ -29,6 +29,8 @@ Route::prefix('v1')->name('api.')->group(function () {
     // Settings routes
     Route::get('settings', [SettingsController::class, 'getSettings'])->name('settings.get');
     Route::put('settings', [SettingsController::class, 'updateSettings'])->name('settings.update');
+    Route::post('settings/profile-picture', [SettingsController::class, 'uploadProfilePicture'])->name('settings.profile-picture.upload');
+    Route::delete('settings/profile-picture', [SettingsController::class, 'deleteProfilePicture'])->name('settings.profile-picture.delete');
     Route::get('settings/currencies', [SettingsController::class, 'getSupportedCurrencies'])->name('settings.currencies');
 
     // Reports routes

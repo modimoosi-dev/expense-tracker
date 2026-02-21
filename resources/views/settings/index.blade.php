@@ -19,6 +19,33 @@
                 <div class="pb-6 mb-6 border-b border-gray-200">
                     <h2 class="mb-4 text-lg font-semibold text-gray-800">Profile Information</h2>
 
+                    <!-- Profile Picture -->
+                    <div class="mb-6">
+                        <label class="block mb-2 text-sm font-medium text-gray-700">Profile Picture</label>
+                        <div class="flex items-center gap-4">
+                            <!-- Current Profile Picture -->
+                            <div class="relative">
+                                <img :src="settings.profile_picture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(settings.name) + '&size=128&background=3B82F6&color=fff'"
+                                     class="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+                                     :alt="settings.name">
+                            </div>
+
+                            <!-- Upload/Delete Controls -->
+                            <div class="flex flex-col gap-2">
+                                <label class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
+                                    <input type="file" accept="image/*" @change="uploadProfilePicture($event)" class="hidden">
+                                    Upload New Picture
+                                </label>
+                                <button type="button" @click="deleteProfilePicture()"
+                                        x-show="settings.profile_picture"
+                                        class="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                                    Remove Picture
+                                </button>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-xs text-gray-500">Recommended: Square image, at least 200x200 pixels. Max size: 2MB</p>
+                    </div>
+
                     <div class="mb-4">
                         <label class="block mb-2 text-sm font-medium text-gray-700">Name</label>
                         <input type="text" x-model="form.name" required
@@ -183,9 +210,8 @@ function settingsData() {
         async saveSettings() {
             this.saving = true;
             try {
-                const response = await fetch('/api/v1/settings', {
+                const response = await window.fetchWithCsrf('/api/v1/settings', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(this.form)
                 });
 
@@ -220,6 +246,76 @@ function settingsData() {
                 style: 'currency',
                 currency: this.form.currency
             }).format(amount);
+        },
+        async uploadProfilePicture(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file size (2MB max)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size must be less than 2MB');
+                return;
+            }
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('profile_picture', file);
+            formData.append('user_id', 1);
+
+            try {
+                const response = await fetch('/api/v1/settings/profile-picture', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': window.csrfToken,
+                    },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    this.settings.profile_picture = data.profile_picture;
+
+                    // Show success message
+                    this.showSuccess = true;
+                    setTimeout(() => {
+                        this.showSuccess = false;
+                    }, 3000);
+                } else {
+                    alert('Failed to upload profile picture');
+                }
+            } catch (error) {
+                console.error('Error uploading profile picture:', error);
+                alert('Failed to upload profile picture');
+            }
+        },
+        async deleteProfilePicture() {
+            if (!confirm('Are you sure you want to remove your profile picture?')) return;
+
+            try {
+                const response = await window.fetchWithCsrf('/api/v1/settings/profile-picture?user_id=1', {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    this.settings.profile_picture = null;
+
+                    // Show success message
+                    this.showSuccess = true;
+                    setTimeout(() => {
+                        this.showSuccess = false;
+                    }, 3000);
+                } else {
+                    alert('Failed to remove profile picture');
+                }
+            } catch (error) {
+                console.error('Error deleting profile picture:', error);
+                alert('Failed to remove profile picture');
+            }
         }
     }
 }

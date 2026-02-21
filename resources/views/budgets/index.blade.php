@@ -319,15 +319,18 @@ function budgetsData() {
                     : '/api/v1/budgets';
                 const method = this.editingBudget ? 'PUT' : 'POST';
 
-                const response = await fetch(url, {
+                const response = await window.fetchWithCsrf(url, {
                     method: method,
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(this.form)
                 });
 
                 if (response.ok) {
                     await this.fetchBudgets();
                     this.closeModal();
+                } else {
+                    const error = await response.text();
+                    console.error('Error response:', error);
+                    alert('Failed to save budget. Check console for details.');
                 }
             } catch (error) {
                 console.error('Error saving budget:', error);
@@ -335,9 +338,8 @@ function budgetsData() {
         },
         async toggleActive(budget) {
             try {
-                const response = await fetch(`/api/v1/budgets/${budget.id}`, {
+                const response = await window.fetchWithCsrf(`/api/v1/budgets/${budget.id}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ is_active: !budget.is_active })
                 });
 
@@ -352,7 +354,7 @@ function budgetsData() {
             if (!confirm('Are you sure you want to delete this budget?')) return;
 
             try {
-                const response = await fetch(`/api/v1/budgets/${id}`, {
+                const response = await window.fetchWithCsrf(`/api/v1/budgets/${id}`, {
                     method: 'DELETE'
                 });
 

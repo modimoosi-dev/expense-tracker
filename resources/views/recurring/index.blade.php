@@ -238,9 +238,8 @@ function recurringData() {
                     : '/api/v1/recurring-expenses';
                 const method = this.form.id ? 'PUT' : 'POST';
 
-                const response = await fetch(url, {
+                const response = await window.fetchWithCsrf(url, {
                     method: method,
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(this.form)
                 });
 
@@ -248,9 +247,14 @@ function recurringData() {
                     this.showForm = false;
                     await this.fetchRecurring();
                     this.resetForm();
+                } else {
+                    const error = await response.text();
+                    console.error('Error response:', error);
+                    alert('Failed to save recurring transaction. Check console for details.');
                 }
             } catch (error) {
                 console.error('Error saving recurring:', error);
+                alert('Failed to save recurring transaction.');
             }
         },
         editRecurring(item) {
@@ -261,7 +265,7 @@ function recurringData() {
             if (!confirm('Are you sure you want to delete this recurring transaction?')) return;
 
             try {
-                const response = await fetch(`/api/v1/recurring-expenses/${id}`, {
+                const response = await window.fetchWithCsrf(`/api/v1/recurring-expenses/${id}`, {
                     method: 'DELETE'
                 });
                 if (response.ok) {
@@ -273,7 +277,7 @@ function recurringData() {
         },
         async toggleStatus(item) {
             try {
-                const response = await fetch(`/api/v1/recurring-expenses/${item.id}/toggle`, {
+                const response = await window.fetchWithCsrf(`/api/v1/recurring-expenses/${item.id}/toggle`, {
                     method: 'POST'
                 });
                 if (response.ok) {
@@ -287,7 +291,7 @@ function recurringData() {
             if (!confirm('Generate an expense from this recurring transaction now?')) return;
 
             try {
-                const response = await fetch(`/api/v1/recurring-expenses/${item.id}/generate`, {
+                const response = await window.fetchWithCsrf(`/api/v1/recurring-expenses/${item.id}/generate`, {
                     method: 'POST'
                 });
                 if (response.ok) {

@@ -327,9 +327,8 @@ function expensesData() {
                     : '/api/v1/expenses';
                 const method = this.editingExpense ? 'PUT' : 'POST';
 
-                const response = await fetch(url, {
+                const response = await window.fetchWithCsrf(url, {
                     method: method,
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(this.form)
                 });
 
@@ -349,7 +348,7 @@ function expensesData() {
             if (!confirm('Are you sure you want to delete this transaction?')) return;
 
             try {
-                const response = await fetch(`/api/v1/expenses/${id}`, {
+                const response = await window.fetchWithCsrf(`/api/v1/expenses/${id}`, {
                     method: 'DELETE'
                 });
 
