@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 
 class SettingsController extends Controller
 {
@@ -14,7 +15,7 @@ class SettingsController extends Controller
         $user = User::findOrFail($userId);
 
         return response()->json([
-            'currency' => $user->currency ?? 'USD',
+            'currency' => $user->currency ?? 'BWP',
             'name' => $user->name,
             'email' => $user->email,
             'profile_picture' => $user->profile_picture ? asset('storage/' . $user->profile_picture) : null,
@@ -53,7 +54,7 @@ class SettingsController extends Controller
 
         // Delete old profile picture if exists
         if ($user->profile_picture) {
-            \Storage::disk('public')->delete($user->profile_picture);
+            Storage::disk('public')->delete($user->profile_picture);
         }
 
         // Store new profile picture
@@ -78,12 +79,72 @@ class SettingsController extends Controller
         $user = User::findOrFail($validated['user_id']);
 
         if ($user->profile_picture) {
-            \Storage::disk('public')->delete($user->profile_picture);
+            Storage::disk('public')->delete($user->profile_picture);
             $user->update(['profile_picture' => null]);
         }
 
         return response()->json([
             'message' => 'Profile picture removed successfully',
+        ]);
+    }
+
+    /**
+     * Return approximate exchange rates relative to BWP.
+     * Rates are fetched live from exchangerate-api.com (free tier, no key needed for open endpoint).
+     * Falls back to static rates when the service is unavailable.
+     */
+    public function getExchangeRates(Request $request): JsonResponse
+    {
+        $base = strtoupper($request->get('base', 'BWP'));
+
+        $cacheKey = "exchange_rates_{$base}";
+
+        $rates = cache()->remember($cacheKey, now()->addHours(6), function () use ($base) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(5)
+                    ->get("https://open.er-api.com/v6/latest/{$base}");
+
+                if ($response->successful()) {
+                    return $response->json('rates');
+                }
+            } catch (\Throwable) {
+                // fall through to static fallback
+            }
+
+            // Static fallback rates (approximate, BWP-based)
+            $bwpRates = [
+                'BWP' => 1.0,
+                'USD' => 0.073,
+                'ZAR' => 1.37,
+                'EUR' => 0.067,
+                'GBP' => 0.058,
+                'ZMW' => 1.87,
+                'NAD' => 1.37,
+                'ZWL' => 93.5,
+                'KES' => 9.45,
+                'GHS' => 1.10,
+                'NGN' => 110.0,
+                'TZS' => 188.0,
+                'UGX' => 274.0,
+                'MWK' => 126.0,
+            ];
+
+            if ($base === 'BWP') {
+                return $bwpRates;
+            }
+
+            // Convert to requested base
+            $bwpPerBase = 1 / ($bwpRates[$base] ?? 1);
+            return collect($bwpRates)->mapWithKeys(
+                fn($rate, $code) => [$code => round($rate * $bwpPerBase, 6)]
+            )->all();
+        });
+
+        return response()->json([
+            'base'      => $base,
+            'rates'     => $rates,
+            'source'    => 'open.er-api.com (cached 6h)',
+            'cached_at' => now()->toIso8601String(),
         ]);
     }
 

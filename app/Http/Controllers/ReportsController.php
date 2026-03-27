@@ -103,6 +103,62 @@ class ReportsController extends Controller
         ]);
     }
 
+    public function getSpendingInsights(Request $request): JsonResponse
+    {
+        $userId = $request->get('user_id', 1);
+
+        $thisMonth = [now()->startOfMonth(), now()->endOfMonth()];
+        $lastMonth = [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()];
+
+        $buildCategoryTotals = fn($start, $end) => Expense::with('category:id,name,color')
+            ->where('user_id', $userId)
+            ->where('type', 'expense')
+            ->whereBetween('date', [$start, $end])
+            ->select('category_id', DB::raw('SUM(amount) as total'))
+            ->groupBy('category_id')
+            ->get()
+            ->keyBy('category_id');
+
+        $thisMonthData = $buildCategoryTotals(...$thisMonth);
+        $lastMonthData = $buildCategoryTotals(...$lastMonth);
+
+        $allCategoryIds = $thisMonthData->keys()->merge($lastMonthData->keys())->unique();
+
+        $insights = $allCategoryIds->map(function ($categoryId) use ($thisMonthData, $lastMonthData) {
+            $thisTotal = (float) ($thisMonthData[$categoryId]->total ?? 0);
+            $lastTotal = (float) ($lastMonthData[$categoryId]->total ?? 0);
+            $category = ($thisMonthData[$categoryId] ?? $lastMonthData[$categoryId])->category;
+
+            $changePct = $lastTotal > 0
+                ? round((($thisTotal - $lastTotal) / $lastTotal) * 100, 1)
+                : ($thisTotal > 0 ? 100 : 0);
+
+            return [
+                'category_id'   => $categoryId,
+                'category_name' => $category?->name ?? 'Unknown',
+                'category_color' => $category?->color ?? '#6B7280',
+                'this_month'    => $thisTotal,
+                'last_month'    => $lastTotal,
+                'change_pct'    => $changePct,
+                'trend'         => $changePct > 0 ? 'up' : ($changePct < 0 ? 'down' : 'same'),
+            ];
+        })->sortByDesc('change_pct')->values();
+
+        $thisMonthTotal = $thisMonthData->sum('total');
+        $lastMonthTotal = $lastMonthData->sum('total');
+        $overallChangePct = $lastMonthTotal > 0
+            ? round((($thisMonthTotal - $lastMonthTotal) / $lastMonthTotal) * 100, 1)
+            : 0;
+
+        return response()->json([
+            'this_month_total'  => $thisMonthTotal,
+            'last_month_total'  => $lastMonthTotal,
+            'overall_change_pct' => $overallChangePct,
+            'overall_trend'     => $overallChangePct > 0 ? 'up' : ($overallChangePct < 0 ? 'down' : 'same'),
+            'categories'        => $insights,
+        ]);
+    }
+
     public function exportToCsv(Request $request)
     {
         $userId = $request->get('user_id', 1);

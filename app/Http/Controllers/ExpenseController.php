@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
+use App\Models\Budget;
 use App\Models\Expense;
+use App\Notifications\BudgetAlertNotification;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -46,7 +48,41 @@ class ExpenseController extends Controller
         $expense = Expense::create($request->validated());
         $expense->load(['category', 'user']);
 
+        if ($expense->type === 'expense') {
+            $this->checkBudgetAlerts($expense);
+        }
+
         return response()->json($expense, 201);
+    }
+
+    private function checkBudgetAlerts(Expense $expense): void
+    {
+        $budgets = Budget::with(['category', 'user'])
+            ->where('user_id', $expense->user_id)
+            ->where('is_active', true)
+            ->where('start_date', '<=', $expense->date)
+            ->where('end_date', '>=', $expense->date)
+            ->where(function ($q) use ($expense) {
+                $q->whereNull('category_id')
+                  ->orWhere('category_id', $expense->category_id);
+            })
+            ->get();
+
+        foreach ($budgets as $budget) {
+            $pct = $budget->getPercentageUsed();
+            $user = $budget->user;
+            $alreadyNotified = $user->notifications()
+                ->where('type', BudgetAlertNotification::class)
+                ->whereJsonContains('data->budget_id', $budget->id)
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year);
+
+            if ($pct >= 100 && !$alreadyNotified->clone()->whereJsonContains('data->threshold', '100')->exists()) {
+                $user->notify(new BudgetAlertNotification($budget, $pct, '100'));
+            } elseif ($pct >= 80 && !$alreadyNotified->clone()->whereJsonContains('data->threshold', '80')->exists()) {
+                $user->notify(new BudgetAlertNotification($budget, $pct, '80'));
+            }
+        }
     }
 
     /**

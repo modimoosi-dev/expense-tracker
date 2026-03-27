@@ -15,11 +15,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create a test user
-        $user = User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Create or retrieve the test user with BWP as default currency
+        $user = User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => bcrypt('password'),
+                'currency' => 'BWP',
+            ]
+        );
+        $user->update(['currency' => 'BWP']);
 
         // Create income categories
         $incomeCategories = [
@@ -40,10 +45,19 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Shopping', 'type' => 'expense', 'color' => '#A855F7'],
             ['name' => 'Education', 'type' => 'expense', 'color' => '#84CC16'],
             ['name' => 'Housing', 'type' => 'expense', 'color' => '#64748B'],
+            // Local mobile categories
+            ['name' => 'Airtime', 'type' => 'expense', 'color' => '#FF6B35'],
+            ['name' => 'Data', 'type' => 'expense', 'color' => '#4CC9F0'],
+            ['name' => 'Mobile Money', 'type' => 'expense', 'color' => '#F72585'],
+            ['name' => 'Subscriptions', 'type' => 'expense', 'color' => '#7209B7'],
+            ['name' => 'Rent', 'type' => 'expense', 'color' => '#3A0CA3'],
         ];
 
         foreach (array_merge($incomeCategories, $expenseCategories) as $category) {
-            \App\Models\Category::create($category);
+            \App\Models\Category::firstOrCreate(
+                ['name' => $category['name'], 'type' => $category['type']],
+                ['color' => $category['color']]
+            );
         }
 
         // Create sample expenses and income

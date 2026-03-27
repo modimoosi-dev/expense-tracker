@@ -1,0 +1,33 @@
+{
+  "appId": "com.expensetracker.bw",
+  "appName": "Expense Tracker",
+  "webDir": "public",
+  "server": {
+    "url": "http://10.0.2.2:8000",
+    "cleartext": true
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon_config_sample",
+      "iconColor": "#4f46e5",
+      "sound": "beep.wav"
+    },
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#4f46e5",
+      "showSpinner": false
+    }
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}

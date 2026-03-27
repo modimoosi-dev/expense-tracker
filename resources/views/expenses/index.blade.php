@@ -4,19 +4,40 @@
 @section('page-title', 'Transactions')
 
 @section('content')
-<div x-data="expensesData()" x-init="init()">
+<div x-data="expensesData">
     <!-- Header -->
     <div class="flex flex-col mb-6 space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div>
             <h1 class="text-2xl font-bold text-gray-800">Transactions</h1>
             <p class="text-gray-600">Track all your income and expenses</p>
         </div>
-        <button @click="openModal()" class="px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700">
-            <svg class="inline-block w-5 h-5 mr-2 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-            Add Transaction
-        </button>
+        <div class="flex items-center gap-2">
+            <!-- Voice input button -->
+            <button @click="startVoiceInput()"
+                    :class="listening ? 'bg-red-500 hover:bg-red-600 animate-pulse' : 'bg-purple-600 hover:bg-purple-700'"
+                    class="px-4 py-2 text-white transition-colors rounded-lg flex items-center gap-2"
+                    title="Voice: say 'Add expense, lunch, P85'">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-7a3 3 0 01-3-3V5a3 3 0 016 0v6a3 3 0 01-3 3z"></path>
+                </svg>
+                <span x-text="listening ? 'Listening…' : 'Voice'"></span>
+            </button>
+            <!-- SMS import button -->
+            <button @click="openSmsModal()"
+                    class="px-4 py-2 text-white transition-colors bg-green-600 hover:bg-green-700 rounded-lg flex items-center gap-2"
+                    title="Import from Orange Money / MyZaka SMS">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                </svg>
+                Import SMS
+            </button>
+            <button @click="openModal()" class="px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Add Transaction
+            </button>
+        </div>
     </div>
 
     <!-- Filters -->
@@ -128,6 +149,44 @@
         </div>
     </div>
 
+    <!-- Voice hint toast -->
+    <div x-show="voiceHint" x-transition
+         class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-lg z-50 text-sm"
+         style="display:none">
+        <span x-text="voiceHint"></span>
+    </div>
+
+    <!-- SMS Import Modal -->
+    <div x-show="showSmsModal"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900 bg-opacity-50"
+         style="display: none;">
+        <div @click.away="showSmsModal = false"
+             class="w-full max-w-lg p-6 bg-white rounded-lg shadow-xl">
+            <h2 class="mb-1 text-xl font-bold text-gray-800">Import from SMS</h2>
+            <p class="mb-4 text-sm text-gray-500">Paste an Orange Money or MyZaka SMS notification below.</p>
+
+            <textarea x-model="smsText" rows="5" placeholder="Paste SMS here…"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm font-mono"></textarea>
+
+            <div x-show="smsPreview" class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg text-sm">
+                <p class="font-semibold text-green-800 mb-1">Parsed successfully:</p>
+                <p x-text="`${smsPreview?.type?.toUpperCase()} · ${smsPreview?.category} · P${smsPreview?.amount}`" class="text-green-700"></p>
+                <p x-text="smsPreview?.description" class="text-green-600 text-xs mt-1"></p>
+            </div>
+
+            <div x-show="smsError" class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700" x-text="smsError"></div>
+
+            <div class="flex justify-end gap-3 mt-4">
+                <button type="button" @click="showSmsModal = false"
+                        class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Cancel</button>
+                <button type="button" @click="previewSms()"
+                        class="px-4 py-2 text-white bg-gray-600 rounded-lg hover:bg-gray-700">Preview</button>
+                <button type="button" @click="importSms()" :disabled="!smsPreview"
+                        class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50">Import</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal -->
     <div x-show="showModal"
          x-transition:enter="transition ease-out duration-300"
@@ -216,160 +275,5 @@
     </div>
 </div>
 
-<script>
-function expensesData() {
-    return {
-        expenses: { data: [] },
-        categories: [],
-        filteredCategories: [],
-        showModal: false,
-        editingExpense: null,
-        filters: {
-            type: '',
-            category_id: '',
-            start_date: '',
-            end_date: ''
-        },
-        form: {
-            user_id: 1, // TODO: Get from auth
-            category_id: '',
-            amount: '',
-            type: 'expense',
-            description: '',
-            date: new Date().toISOString().split('T')[0],
-            payment_method: '',
-            reference: ''
-        },
-        async init() {
-            await this.fetchCategories();
-            await this.fetchExpenses();
-            this.filterCategoriesByType();
 
-            // Check for query parameters to auto-open form
-            const urlParams = new URLSearchParams(window.location.search);
-            const type = urlParams.get('type');
-            if (type === 'expense' || type === 'income') {
-                this.form.type = type;
-                this.filterCategoriesByType();
-                this.showModal = true;
-            }
-        },
-        async fetchExpenses(page = 1) {
-            try {
-                const params = new URLSearchParams({ page: page.toString() });
-                if (this.filters.type) params.append('type', this.filters.type);
-                if (this.filters.category_id) params.append('category_id', this.filters.category_id);
-                if (this.filters.start_date) params.append('start_date', this.filters.start_date);
-                if (this.filters.end_date) params.append('end_date', this.filters.end_date);
-
-                const response = await fetch(`/api/v1/expenses?${params}`);
-                if (response.ok) {
-                    this.expenses = await response.json();
-                }
-            } catch (error) {
-                console.error('Error fetching expenses:', error);
-            }
-        },
-        async fetchCategories() {
-            try {
-                const response = await fetch('/api/v1/categories');
-                if (response.ok) {
-                    this.categories = await response.json();
-                }
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        },
-        filterCategoriesByType() {
-            this.filteredCategories = this.categories.filter(c => c.type === this.form.type);
-        },
-        goToPage(page) {
-            this.fetchExpenses(page);
-        },
-        openModal() {
-            this.showModal = true;
-            this.editingExpense = null;
-            this.form = {
-                user_id: 1,
-                category_id: '',
-                amount: '',
-                type: 'expense',
-                description: '',
-                date: new Date().toISOString().split('T')[0],
-                payment_method: '',
-                reference: ''
-            };
-            this.filterCategoriesByType();
-        },
-        closeModal() {
-            this.showModal = false;
-            this.editingExpense = null;
-        },
-        editExpense(expense) {
-            this.editingExpense = expense;
-            this.form = {
-                user_id: expense.user_id,
-                category_id: expense.category_id,
-                amount: expense.amount,
-                type: expense.type,
-                description: expense.description || '',
-                date: expense.date,
-                payment_method: expense.payment_method || '',
-                reference: expense.reference || ''
-            };
-            this.filterCategoriesByType();
-            this.showModal = true;
-        },
-        async saveExpense() {
-            try {
-                const url = this.editingExpense
-                    ? `/api/v1/expenses/${this.editingExpense.id}`
-                    : '/api/v1/expenses';
-                const method = this.editingExpense ? 'PUT' : 'POST';
-
-                const response = await window.fetchWithCsrf(url, {
-                    method: method,
-                    body: JSON.stringify(this.form)
-                });
-
-                if (response.ok) {
-                    await this.fetchExpenses();
-                    this.closeModal();
-                } else {
-                    const error = await response.json();
-                    alert('Error: ' + (error.message || 'Failed to save transaction'));
-                }
-            } catch (error) {
-                console.error('Error saving expense:', error);
-                alert('Error saving transaction');
-            }
-        },
-        async deleteExpense(id) {
-            if (!confirm('Are you sure you want to delete this transaction?')) return;
-
-            try {
-                const response = await window.fetchWithCsrf(`/api/v1/expenses/${id}`, {
-                    method: 'DELETE'
-                });
-
-                if (response.ok) {
-                    await this.fetchExpenses();
-                }
-            } catch (error) {
-                console.error('Error deleting expense:', error);
-            }
-        },
-        formatCurrency(amount) {
-            return window.formatCurrency(amount);
-        },
-        formatDate(date) {
-            return new Date(date).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
-        }
-    }
-}
-</script>
 @endsection
