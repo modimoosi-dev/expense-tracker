@@ -1,6 +1,6 @@
 FROM php:8.2-cli
 
-# Install system dependencies
+# Install system dependencies + PHP extensions
 RUN apt-get update && apt-get install -y \
     curl \
     unzip \
@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libcurl4-openssl-dev \
     libonig-dev \
+    libicu-dev \
+    libgd-dev \
+    && docker-php-ext-configure gd \
     && docker-php-ext-install \
         pdo \
         pdo_pgsql \
@@ -19,6 +22,10 @@ RUN apt-get update && apt-get install -y \
         zip \
         bcmath \
         curl \
+        intl \
+        gd \
+        pcntl \
+        opcache \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
@@ -33,15 +40,17 @@ WORKDIR /app
 
 # Copy and install PHP dependencies
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-scripts
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
 
-# Copy and install Node dependencies + build assets
+# Copy and install Node dependencies
 COPY package.json package-lock.json ./
 RUN npm ci
 
+# Copy everything else and build
 COPY . .
 
-RUN npm run build \
+RUN COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize \
+    && npm run build \
     && php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache
