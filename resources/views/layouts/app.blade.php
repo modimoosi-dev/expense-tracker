@@ -10,12 +10,20 @@
     <link rel="manifest" href="/manifest.json">
     <title>@yield('title', 'Expense Tracker')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        /* Hide sidebar on mobile before JS loads — eliminates flash on navigation */
+        @media (max-width: 1023px) {
+            #app-sidebar { transform: translateX(-100%); }
+        }
+    </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 antialiased">
     <div x-data="layoutData()" x-init="init()" class="min-h-screen">
         <!-- Sidebar -->
-        <aside class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out lg:translate-x-0"
-               :class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }">
+        <aside id="app-sidebar"
+               class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-2xl transform lg:translate-x-0"
+               :class="{ 'transition-transform duration-300 ease-in-out': initialized }"
+               :style="sidebarOpen ? 'transform: translateX(0)' : ''">
             <div class="flex flex-col h-full">
                 <!-- Logo -->
                 <div class="flex items-center justify-between h-16 px-6 bg-gradient-to-r from-indigo-600 to-purple-600">
@@ -117,10 +125,63 @@
             </header>
 
             <!-- Page Content -->
-            <main class="p-6">
+            <main class="p-6 pb-24 lg:pb-6">
                 @yield('content')
             </main>
         </div>
+
+        <!-- Bottom Navigation (mobile only) -->
+        <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-2xl safe-area-pb">
+            <div class="flex items-center justify-around h-16 px-2">
+
+                <!-- Dashboard -->
+                <a href="{{ route('dashboard') }}"
+                   class="flex flex-col items-center justify-center flex-1 h-full pt-1 gap-0.5 {{ request()->routeIs('dashboard') ? 'text-indigo-600' : 'text-gray-400' }}">
+                    <svg class="w-6 h-6" fill="{{ request()->routeIs('dashboard') ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span class="text-xs font-medium">Home</span>
+                </a>
+
+                <!-- Transactions -->
+                <a href="{{ route('expenses.index') }}"
+                   class="flex flex-col items-center justify-center flex-1 h-full pt-1 gap-0.5 {{ request()->routeIs('expenses.*') ? 'text-indigo-600' : 'text-gray-400' }}">
+                    <svg class="w-6 h-6" fill="{{ request()->routeIs('expenses.*') ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Transactions</span>
+                </a>
+
+                <!-- FAB: Quick Add -->
+                <a href="{{ route('expenses.index') }}?type=expense"
+                   class="flex flex-col items-center justify-center flex-1 h-full">
+                    <div class="w-14 h-14 -mt-6 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-indigo-500/40 active:scale-95 transition-transform">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                    </div>
+                </a>
+
+                <!-- Budgets -->
+                <a href="{{ route('budgets.index') }}"
+                   class="flex flex-col items-center justify-center flex-1 h-full pt-1 gap-0.5 {{ request()->routeIs('budgets.*') ? 'text-indigo-600' : 'text-gray-400' }}">
+                    <svg class="w-6 h-6" fill="{{ request()->routeIs('budgets.*') ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Budgets</span>
+                </a>
+
+                <!-- Reports -->
+                <a href="{{ route('reports.index') }}"
+                   class="flex flex-col items-center justify-center flex-1 h-full pt-1 gap-0.5 {{ request()->routeIs('reports.*') ? 'text-indigo-600' : 'text-gray-400' }}">
+                    <svg class="w-6 h-6" fill="{{ request()->routeIs('reports.*') ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Reports</span>
+                </a>
+
+            </div>
+        </nav>
 
         <!-- Overlay for mobile -->
         <div x-show="sidebarOpen"
@@ -139,10 +200,14 @@
     function layoutData() {
         return {
             sidebarOpen: false,
+            initialized: false,
             userName: '{{ auth()->user()->name ?? 'User' }}',
             userProfilePicture: '{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : '' }}',
             userId: {{ auth()->id() ?? 1 }},
             async init() {
+                // Let Alpine render the correct closed state first, then enable transitions
+                await this.$nextTick();
+                this.initialized = true;
                 await this.fetchUserProfile();
 
                 // Listen for profile picture updates

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\FirebaseTokenController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\NotificationController;
@@ -35,6 +36,9 @@ Route::prefix('v1')->name('api.')->group(function () {
     Route::delete('settings/profile-picture', [SettingsController::class, 'deleteProfilePicture'])->name('settings.profile-picture.delete');
     Route::get('settings/currencies', [SettingsController::class, 'getSupportedCurrencies'])->name('settings.currencies');
     Route::get('settings/exchange-rates', [SettingsController::class, 'getExchangeRates'])->name('settings.exchange-rates');
+
+    // Firebase custom auth token
+    Route::get('firebase-token', [FirebaseTokenController::class, 'token'])->name('firebase.token');
 
     // Notifications routes
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');

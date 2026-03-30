@@ -51,17 +51,17 @@ export default function categoriesData() {
                     type: this.form.type,
                     color: this.form.color
                 };
-                
+
                 if (this.editingCategory) {
-                    const categoryRef = doc(db, 'categories', this.editingCategory.id);
-                    await updateDoc(categoryRef, dataToSave);
+                    await updateDoc(doc(db, 'categories', this.editingCategory.id), dataToSave);
                 } else {
                     await addDoc(collection(db, 'categories'), dataToSave);
                 }
                 await this.fetchCategories();
                 this.closeModal();
             } catch (error) {
-                console.error('Error saving category:', error);
+                console.error('Firestore error:', error);
+                alert('Failed to save: ' + (error.code || error.message));
             }
         },
         async deleteCategory(id) {
