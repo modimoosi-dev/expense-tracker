@@ -3,8 +3,7 @@
   "appName": "Expense Tracker",
   "webDir": "public",
   "server": {
-    "url": "http://10.0.2.2:8000",
-    "cleartext": true
+    "url": "https://expense-tracker.onrender.com"
   },
   "plugins": {
     "PushNotifications": {
