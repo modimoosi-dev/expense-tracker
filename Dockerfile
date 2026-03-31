@@ -40,7 +40,7 @@ WORKDIR /app
 
 # Copy and install PHP dependencies
 COPY composer.json composer.lock ./
-RUN COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-scripts --no-interaction --ignore-platform-reqs
 
 # Copy and install Node dependencies
 COPY package.json package-lock.json ./
