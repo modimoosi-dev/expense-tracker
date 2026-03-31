@@ -50,11 +50,8 @@ RUN npm ci
 COPY . .
 
 RUN COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize \
-    && npm run build \
-    && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
+    && npm run build
 
 EXPOSE 8080
 
-CMD php artisan migrate --force && php artisan storage:link --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+CMD php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan migrate --force && php artisan storage:link --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
