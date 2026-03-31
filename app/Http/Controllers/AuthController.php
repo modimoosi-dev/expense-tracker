@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -58,6 +60,34 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
+
+        return redirect()->route('dashboard');
+    }
+
+    public function googleRedirect()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function googleCallback()
+    {
+        $googleUser = Socialite::driver('google')->stateless()->user();
+
+        $user = User::firstOrCreate(
+            ['email' => $googleUser->getEmail()],
+            [
+                'name'     => $googleUser->getName(),
+                'password' => Hash::make(Str::random(24)),
+                'currency' => 'BWP',
+            ]
+        );
+
+        // Update avatar if changed
+        if ($googleUser->getAvatar()) {
+            $user->update(['profile_picture' => $googleUser->getAvatar()]);
+        }
+
+        Auth::login($user, true);
 
         return redirect()->route('dashboard');
     }
