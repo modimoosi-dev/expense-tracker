@@ -1,6 +1,7 @@
-FROM php:8.4-cli
+FROM php:8.4-apache
 
-# cache-bust: 2026-03-31
+# cache-bust: 2026-03-31b
+
 # Install system dependencies + PHP extensions
 RUN apt-get update && apt-get install -y \
     curl \
@@ -27,6 +28,7 @@ RUN apt-get update && apt-get install -y \
         gd \
         pcntl \
         opcache \
+    && a2enmod rewrite \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
@@ -37,7 +39,15 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# Set Apache document root to Laravel's public folder
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
+    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Set Apache to listen on $PORT
+RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf
+
+WORKDIR /var/www/html
 
 # Copy and install PHP dependencies
 COPY composer.json composer.lock ./
@@ -53,6 +63,15 @@ COPY . .
 RUN COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize --ignore-platform-reqs \
     && npm run build
 
-EXPOSE 8080
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-CMD php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan migrate --force && php artisan storage:link --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+# Apache startup script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+EXPOSE 80
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["apache2-foreground"]
