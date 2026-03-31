@@ -1,5 +1,6 @@
 FROM php:8.4-cli
 
+# cache-bust: 2026-03-31
 # Install system dependencies + PHP extensions
 RUN apt-get update && apt-get install -y \
     curl \
@@ -49,7 +50,7 @@ RUN npm ci
 # Copy everything else and build
 COPY . .
 
-RUN COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize \
+RUN COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize --ignore-platform-reqs \
     && npm run build
 
 EXPOSE 8080
