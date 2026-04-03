@@ -1,6 +1,6 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
-import { app, db } from './firebase';
+import { db } from './firebase';
 import categoriesData from './components/categories';
 import expensesData from './components/expenses';
 import budgetsData from './components/budgets';
@@ -57,3 +57,12 @@ Alpine.data('expensesData', expensesData);
 Alpine.data('budgetsData', budgetsData);
 Alpine.data('dashboardData', dashboardData);
 Alpine.start();
+
+// Hide Capacitor splash screen once the page is fully loaded
+if (window.Capacitor) {
+    import('@capacitor/splash-screen').then(({ SplashScreen }) => {
+        window.addEventListener('load', () => {
+            setTimeout(() => SplashScreen.hide(), 300);
+        });
+    }).catch(() => {});
+}

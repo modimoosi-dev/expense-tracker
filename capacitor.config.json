@@ -19,9 +19,12 @@
       "sound": "beep.wav"
     },
     "SplashScreen": {
-      "launchShowDuration": 2000,
+      "launchShowDuration": 0,
+      "launchAutoHide": false,
       "backgroundColor": "#4f46e5",
-      "showSpinner": false
+      "androidSpinnerStyle": "large",
+      "spinnerColor": "#ffffff",
+      "showSpinner": true
     }
   },
   "android": {
