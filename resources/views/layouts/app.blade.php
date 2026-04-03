@@ -23,7 +23,8 @@
         <aside id="app-sidebar"
                class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-2xl transform lg:translate-x-0"
                :class="{ 'transition-transform duration-300 ease-in-out': initialized }"
-               :style="sidebarOpen ? 'transform: translateX(0)' : ''">
+               :style="isMobile ? (sidebarOpen ? 'transform: translateX(0)' : 'transform: translateX(-100%)') : ''"
+               >
             <div class="flex flex-col h-full">
                 <!-- Logo -->
                 <div class="flex items-center justify-between h-16 px-6 bg-gradient-to-r from-indigo-600 to-purple-600">
@@ -200,9 +201,10 @@
     function layoutData() {
         return {
             sidebarOpen: false,
+            isMobile: window.innerWidth < 1024,
             initialized: false,
-            userName: '{{ auth()->user()->name ?? 'User' }}',
-            userProfilePicture: '{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : '' }}',
+            userName: '{{ addslashes(auth()->user()->name ?? 'User') }}',
+            userProfilePicture: '{{ auth()->user()->profile_picture ? (str_starts_with(auth()->user()->profile_picture, 'http') ? auth()->user()->profile_picture : asset('storage/' . auth()->user()->profile_picture)) : '' }}',
             userId: {{ auth()->id() ?? 1 }},
             async init() {
                 // Let Alpine render the correct closed state first, then enable transitions
