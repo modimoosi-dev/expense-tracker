@@ -113,11 +113,24 @@ export default function dashboardData() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '65%',
+                    cutout: '60%',
                     plugins: {
                         legend: {
-                            position: 'right',
-                            labels: { color: textColor, boxWidth: 12, padding: 12, font: { size: 11 } }
+                            position: 'bottom',
+                            labels: {
+                                color: textColor,
+                                boxWidth: 10,
+                                boxHeight: 10,
+                                padding: 10,
+                                font: { size: 11 },
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ` ${ctx.label}: ${window.formatCurrency ? window.formatCurrency(ctx.raw) : ctx.raw}`
+                            }
                         }
                     }
                 }

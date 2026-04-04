@@ -109,7 +109,7 @@
                 <h3 class="text-base font-bold text-gray-800">Expenses by Category</h3>
                 <span class="px-2.5 py-1 text-xs font-medium text-red-600 bg-red-50 rounded-full">All Time</span>
             </div>
-            <div class="relative w-full h-52">
+            <div class="relative w-full h-64">
                 <canvas id="expensesPieChart"></canvas>
             </div>
         </div>
