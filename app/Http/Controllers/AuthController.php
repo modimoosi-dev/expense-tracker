@@ -98,16 +98,22 @@ class AuthController extends Controller
 
         Auth::login($user, true);
 
-        // If request wants a deep link (mobile app), return HTML page that redirects via JS
-        $redirectTo = request()->query('redirect_to');
-        if ($redirectTo === 'app') {
-            $token = Str::random(40);
-            Cache::put('oauth_token_' . $token, $user->id, now()->addMinutes(2));
-            $deepLink = 'com.expensetracker.bw://auth?token=' . $token;
-            return response()->view('auth.oauth-callback', ['deepLink' => $deepLink]);
+        return redirect()->route('dashboard');
+    }
+
+    public function pollAuthStatus(Request $request)
+    {
+        $key = $request->query('key', '');
+        if (!$key) {
+            return response()->json(['ready' => false]);
         }
 
-        return redirect()->route('dashboard');
+        $token = Cache::get('oauth_ready_' . $key);
+        if (!$token) {
+            return response()->json(['ready' => false]);
+        }
+
+        return response()->json(['ready' => true, 'token' => $token]);
     }
 
     public function googleNativeCallback(Request $request)
@@ -155,6 +161,58 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         return response()->json(['success' => true]);
+    }
+
+    public function googleGisCallback(Request $request)
+    {
+        try {
+        $credential = $request->input('credential');
+        if (!$credential) {
+            return response()->json(['message' => 'No credential provided.'], 422);
+        }
+
+        // Verify the Google ID token via Google's tokeninfo endpoint
+        $response = \Illuminate\Support\Facades\Http::get('https://oauth2.googleapis.com/tokeninfo', [
+            'id_token' => $credential,
+        ]);
+
+        if (!$response->successful()) {
+            return response()->json(['message' => 'Invalid token.'], 401);
+        }
+
+        $payload = $response->json();
+        $clientId = config('services.google.client_id');
+
+        // Ensure the token was issued for our app
+        if (!in_array($clientId, [$payload['aud'] ?? '', $payload['azp'] ?? ''])) {
+            return response()->json(['message' => 'Token audience mismatch.'], 401);
+        }
+
+        $email = $payload['email'] ?? null;
+        if (!$email) {
+            return response()->json(['message' => 'No email in token.'], 401);
+        }
+
+        $user = User::firstOrCreate(
+            ['email' => $email],
+            [
+                'name'     => $payload['name'] ?? explode('@', $email)[0],
+                'password' => Hash::make(Str::random(24)),
+                'currency' => 'BWP',
+            ]
+        );
+
+        if (!empty($payload['picture'])) {
+            $user->update(['profile_picture' => $payload['picture']]);
+        }
+
+        Auth::login($user, true);
+        $request->session()->regenerate();
+
+        return response()->json(['success' => true]);
+        } catch (\Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     public function logout(Request $request)
