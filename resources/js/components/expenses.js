@@ -46,6 +46,16 @@ export default function expensesData() {
                 this.openStatementModal();
             }
 
+            // Check if app was opened via "Open with" on a CSV file
+            const pendingCsv = sessionStorage.getItem('pendingCsv');
+            if (pendingCsv) {
+                sessionStorage.removeItem('pendingCsv');
+                this.openStatementModal();
+                const blob = new Blob([pendingCsv], { type: 'text/csv' });
+                const file = new File([blob], 'statement.csv', { type: 'text/csv' });
+                await this.uploadStatement({ target: { files: [file], value: '' } });
+            }
+
             await this.fetchCategories();
             await this.fetchExpenses();
             this.filterCategoriesByType();
