@@ -8,16 +8,16 @@
     <div class="max-w-4xl">
         <!-- Header -->
         <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Settings</h1>
-            <p class="text-gray-600">Manage your account preferences</p>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Settings</h1>
+            <p class="text-gray-600 dark:text-gray-400">Manage your account preferences</p>
         </div>
 
         <!-- Settings Form -->
-        <div class="p-6 bg-white rounded-lg shadow">
+        <div class="p-6 bg-white dark:bg-gray-900 rounded-lg shadow dark:shadow-gray-950">
             <form @submit.prevent="saveSettings()">
                 <!-- Profile Settings -->
-                <div class="pb-6 mb-6 border-b border-gray-200">
-                    <h2 class="mb-4 text-lg font-semibold text-gray-800">Profile Information</h2>
+                <div class="pb-6 mb-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-100">Profile Information</h2>
 
                     <!-- Profile Picture -->
                     <div class="mb-6">
@@ -47,27 +47,44 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="block mb-2 text-sm font-medium text-gray-700">Name</label>
+                        <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
                         <input type="text" x-model="form.name" required
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
                     <div class="mb-4">
-                        <label class="block mb-2 text-sm font-medium text-gray-700">Email</label>
+                        <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                         <input type="email" x-model="settings.email" disabled
-                               class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed">
+                               class="w-full px-3 py-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 rounded-lg cursor-not-allowed">
                         <p class="mt-1 text-xs text-gray-500">Email cannot be changed</p>
                     </div>
                 </div>
 
+                <!-- Appearance -->
+                <div class="pb-6 mb-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-100">Appearance</h2>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Dark Mode</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Switch between light and dark theme</p>
+                        </div>
+                        <button type="button" @click="toggleTheme()"
+                                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                                :class="isDark ? 'bg-indigo-600' : 'bg-gray-200'">
+                            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                                  :class="isDark ? 'translate-x-6' : 'translate-x-1'"></span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Currency Settings -->
-                <div class="pb-6 mb-6 border-b border-gray-200">
-                    <h2 class="mb-4 text-lg font-semibold text-gray-800">Currency Preferences</h2>
+                <div class="pb-6 mb-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-100">Currency Preferences</h2>
 
                     <div class="mb-4">
-                        <label class="block mb-2 text-sm font-medium text-gray-700">Default Currency</label>
+                        <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Default Currency</label>
                         <select x-model="form.currency" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <template x-for="currency in currencies" :key="currency.code">
                                 <option :value="currency.code" x-text="`${currency.code} - ${currency.name} (${currency.symbol})`"></option>
                             </template>
@@ -91,20 +108,20 @@
 
                 <!-- Data Statistics -->
                 <div class="pb-6 mb-6 border-b border-gray-200">
-                    <h2 class="mb-4 text-lg font-semibold text-gray-800">Account Statistics</h2>
+                    <h2 class="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-100">Account Statistics</h2>
 
                     <div class="grid grid-cols-3 gap-4">
-                        <div class="p-4 bg-gray-50 rounded-lg">
-                            <p class="text-sm text-gray-600">Total Categories</p>
-                            <p class="text-2xl font-bold text-gray-900" x-text="stats.categories"></p>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Total Categories</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100" x-text="stats.categories"></p>
                         </div>
-                        <div class="p-4 bg-gray-50 rounded-lg">
-                            <p class="text-sm text-gray-600">Total Transactions</p>
-                            <p class="text-2xl font-bold text-gray-900" x-text="stats.transactions"></p>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Total Transactions</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100" x-text="stats.transactions"></p>
                         </div>
-                        <div class="p-4 bg-gray-50 rounded-lg">
-                            <p class="text-sm text-gray-600">Active Budgets</p>
-                            <p class="text-2xl font-bold text-gray-900" x-text="stats.budgets"></p>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Active Budgets</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100" x-text="stats.budgets"></p>
                         </div>
                     </div>
                 </div>
@@ -162,6 +179,12 @@ function settingsData() {
         },
         saving: false,
         showSuccess: false,
+        isDark: localStorage.getItem('darkMode') === 'true',
+        toggleTheme() {
+            this.isDark = !this.isDark;
+            localStorage.setItem('darkMode', this.isDark);
+            document.documentElement.classList.toggle('dark', this.isDark);
+        },
         async init() {
             await this.fetchCurrencies();
             await this.fetchSettings();
