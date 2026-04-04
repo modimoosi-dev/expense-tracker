@@ -1,6 +1,8 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
 import { db } from './firebase';
+import { Browser } from '@capacitor/browser';
+import { App as CapApp } from '@capacitor/app';
 import categoriesData from './components/categories';
 import expensesData from './components/expenses';
 import budgetsData from './components/budgets';
@@ -60,31 +62,36 @@ Alpine.data('budgetsData', budgetsData);
 Alpine.data('dashboardData', dashboardData);
 Alpine.start();
 
+// Google OAuth handler — used by login page button
+window.handleGoogleLogin = async function(googleUrl) {
+    if (window.Capacitor) {
+        await Browser.open({ url: googleUrl, presentationStyle: 'popover', toolbarColor: '#4f46e5' });
+    } else {
+        window.location.href = googleUrl;
+    }
+};
+
 // Handle Google OAuth deep link callback (mobile only)
 if (window.Capacitor) {
-    import('@capacitor/app').then(({ App }) => {
-        App.addListener('appUrlOpen', async ({ url }) => {
-            if (url.startsWith('com.expensetracker.bw://auth')) {
-                const token = new URL(url).searchParams.get('token');
-                if (!token) return;
+    CapApp.addListener('appUrlOpen', async ({ url }) => {
+        if (url.startsWith('com.expensetracker.bw://auth')) {
+            const token = new URL(url).searchParams.get('token');
+            if (!token) return;
 
-                import('@capacitor/browser').then(({ Browser }) => Browser.close()).catch(() => {});
+            Browser.close().catch(() => {});
 
-                const res = await fetch('/auth/verify-token', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': window.csrfToken,
-                    },
-                    body: JSON.stringify({ token }),
-                    credentials: 'include',
-                });
+            const res = await fetch('/auth/verify-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': window.csrfToken,
+                },
+                body: JSON.stringify({ token }),
+                credentials: 'include',
+            });
 
-                if (res.ok) {
-                    window.location.href = '/dashboard';
-                }
-            }
-        });
-    }).catch(() => {});
+            if (res.ok) window.location.href = '/dashboard';
+        }
+    });
 }
 
