@@ -94,34 +94,44 @@
 
         <!-- Main Content -->
         <div class="lg:pl-64">
-            <!-- Top Bar -->
-            <header class="sticky top-0 z-40 flex items-center justify-between h-16 px-6 bg-white/80 backdrop-blur-lg border-b border-gray-200/50 shadow-sm">
-                <button @click="sidebarOpen = true" class="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-                <div class="flex items-center space-x-4">
+            <!-- Top Bar: full on desktop, minimal app-style on mobile -->
+            <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-lg border-b border-gray-200/50 shadow-sm">
+                <!-- Desktop header -->
+                <div class="hidden lg:flex items-center justify-between h-16 px-6">
                     <h2 class="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">@yield('page-title', 'Dashboard')</h2>
+                    <div class="flex items-center space-x-2">
+                        <a href="{{ route('settings.index') }}" class="flex items-center space-x-3 px-4 py-2 rounded-xl hover:bg-gray-50 transition-all group">
+                            <span class="text-sm font-medium text-gray-600 group-hover:text-gray-900" x-text="'Welcome, ' + userName"></span>
+                            <div class="relative">
+                                <img :src="userProfilePicture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userName) + '&size=80&background=6366F1&color=fff'"
+                                     class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-200 group-hover:ring-indigo-500 transition-all"
+                                     :alt="userName">
+                                <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                            </div>
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Logout">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <a href="{{ route('settings.index') }}" class="flex items-center space-x-3 px-4 py-2 rounded-xl hover:bg-gray-50 transition-all group">
-                        <span class="text-sm font-medium text-gray-600 group-hover:text-gray-900" x-text="'Welcome, ' + userName"></span>
-                        <div class="relative">
-                            <img :src="userProfilePicture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userName) + '&size=80&background=6366F1&color=fff'"
-                                 class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-200 group-hover:ring-indigo-500 transition-all"
-                                 :alt="userName">
-                            <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                        </div>
+                <!-- Mobile header: app-style status bar -->
+                <div class="lg:hidden flex items-center justify-between h-14 px-4">
+                    <button @click="sidebarOpen = true" class="p-2 -ml-2 text-gray-500 active:bg-gray-100 rounded-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <h2 class="text-base font-semibold text-gray-800">@yield('page-title', 'Dashboard')</h2>
+                    <a href="{{ route('settings.index') }}" class="p-1">
+                        <img :src="userProfilePicture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userName) + '&size=80&background=6366F1&color=fff'"
+                             class="w-8 h-8 rounded-full object-cover ring-2 ring-indigo-200"
+                             :alt="userName">
                     </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Logout">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                            </svg>
-                        </button>
-                    </form>
                 </div>
             </header>
 
