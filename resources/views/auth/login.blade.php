@@ -161,8 +161,10 @@
             if (res.ok) {
                 window.location.href = '/dashboard';
             } else {
-                const data = await res.json().catch(() => ({}));
-                throw new Error(data.message || 'Sign-in failed.');
+                const text = await res.text();
+                let msg = 'Sign-in failed (' + res.status + ')';
+                try { msg = JSON.parse(text).message || msg; } catch(e) { msg += ': ' + text.substring(0, 100); }
+                throw new Error(msg);
             }
         } catch (err) {
             console.error('Native Google sign-in error:', err);
