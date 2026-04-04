@@ -3,7 +3,10 @@ import Alpine from 'alpinejs';
 import { db } from './firebase';
 import { Browser } from '@capacitor/browser';
 import { App as CapApp } from '@capacitor/app';
-import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
+let FirebaseAuthentication = null;
+if (window.Capacitor) {
+    import('@capacitor-firebase/authentication').then(m => { FirebaseAuthentication = m.FirebaseAuthentication; }).catch(() => {});
+}
 import categoriesData from './components/categories';
 import expensesData from './components/expenses';
 import budgetsData from './components/budgets';
