@@ -11,6 +11,11 @@
       "skipNativeAuth": false,
       "providers": ["google.com"]
     },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#4f46e5",
+      "overlaysWebView": false
+    },
     "PushNotifications": {
       "presentationOptions": [
         "badge",
