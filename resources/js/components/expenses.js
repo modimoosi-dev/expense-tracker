@@ -13,6 +13,8 @@ export default function expensesData() {
         voiceHint: '',
         showSmsModal: false,
         smsText: '',
+        smsList: [],
+        smsLoading: false,
         smsPreview: null,
         smsError: '',
         filters: {
@@ -184,19 +186,42 @@ export default function expensesData() {
             this.voiceHint = msg;
             if (duration > 0) setTimeout(() => this.voiceHint = '', duration);
         },
-        openSmsModal() {
+        async openSmsModal() {
             this.showSmsModal = true;
             this.smsText = '';
+            this.smsList = [];
             this.smsPreview = null;
             this.smsError = '';
+
+            if (this.isNative) {
+                this.smsLoading = true;
+                try {
+                    const SmsPlugin = window.Capacitor?.Plugins?.SmsPlugin;
+                    if (!SmsPlugin) throw new Error('SmsPlugin not available');
+                    const result = await SmsPlugin.getSmsInbox({ limit: 150 });
+                    this.smsList = result.messages || [];
+                    if (this.smsList.length === 0) {
+                        this.smsError = 'No financial SMS found in your inbox.';
+                    }
+                } catch (err) {
+                    this.smsError = err.message || 'Could not read SMS inbox.';
+                } finally {
+                    this.smsLoading = false;
+                }
+            }
+        },
+        async selectSms(body) {
+            this.smsText = body;
+            await this.previewSms();
         },
         async previewSms() {
+            this.smsError = '';
             try {
                 const resp = await window.fetchWithCsrf('/api/v1/sms/preview', {
                     method: 'POST', body: JSON.stringify({ sms: this.smsText })
                 });
                 const data = await resp.json();
-                if (resp.ok) { this.smsPreview = data; } else { this.smsError = data.error; }
+                if (resp.ok) { this.smsPreview = data; } else { this.smsError = data.error || 'Could not parse SMS.'; }
             } catch { this.smsError = 'Network error.'; }
         },
         async importSms() {
