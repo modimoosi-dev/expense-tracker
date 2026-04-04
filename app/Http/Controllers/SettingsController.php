@@ -18,7 +18,7 @@ class SettingsController extends Controller
             'currency' => $user->currency ?? 'BWP',
             'name' => $user->name,
             'email' => $user->email,
-            'profile_picture' => $user->profile_picture ? asset('storage/' . $user->profile_picture) : null,
+            'profile_picture' => $this->profilePictureUrl($user->profile_picture),
         ]);
     }
 
@@ -39,7 +39,7 @@ class SettingsController extends Controller
         return response()->json([
             'message' => 'Settings updated successfully',
             'currency' => $user->currency,
-            'profile_picture' => $user->profile_picture ? asset('storage/' . $user->profile_picture) : null,
+            'profile_picture' => $this->profilePictureUrl($user->profile_picture),
         ]);
     }
 
@@ -66,8 +66,14 @@ class SettingsController extends Controller
 
         return response()->json([
             'message' => 'Profile picture updated successfully',
-            'profile_picture' => asset('storage/' . $path),
+            'profile_picture' => $this->profilePictureUrl($path),
         ]);
+    }
+
+    private function profilePictureUrl(?string $picture): ?string
+    {
+        if (!$picture) return null;
+        return str_starts_with($picture, 'http') ? $picture : asset('storage/' . $picture);
     }
 
     public function deleteProfilePicture(Request $request): JsonResponse

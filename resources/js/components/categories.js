@@ -65,7 +65,7 @@ export default function categoriesData() {
             }
         },
         async deleteCategory(id) {
-            if (!confirm('Are you sure you want to delete this category?')) return;
+            if (!await window.confirmDelete('this category')) return;
             try {
                 await deleteDoc(doc(db, 'categories', id));
                 await this.fetchCategories();

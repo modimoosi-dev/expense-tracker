@@ -136,7 +136,7 @@ export default function expensesData() {
             }
         },
         async deleteExpense(id) {
-            if (!confirm('Are you sure you want to delete this transaction?')) return;
+            if (!await window.confirmDelete('this transaction')) return;
             try {
                 await deleteDoc(doc(db, 'expenses', id));
                 await this.fetchExpenses();

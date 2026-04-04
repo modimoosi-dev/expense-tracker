@@ -194,6 +194,45 @@
             </div>
         </nav>
 
+        <!-- Custom Delete Confirmation Modal -->
+        <div x-data="confirmModal()"
+             x-show="open"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4"
+             style="display:none">
+            <div class="absolute inset-0 bg-black/50" @click="cancel()"></div>
+            <div class="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 translate-y-4"
+                 x-transition:enter-end="opacity-100 translate-y-0">
+                <div class="p-6">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 text-center" x-text="title"></h3>
+                    <p class="text-sm text-gray-500 text-center mt-1" x-text="message"></p>
+                </div>
+                <div class="flex border-t border-gray-100">
+                    <button @click="cancel()"
+                            class="flex-1 py-4 text-sm font-medium text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                        Cancel
+                    </button>
+                    <div class="w-px bg-gray-100"></div>
+                    <button @click="confirm()"
+                            class="flex-1 py-4 text-sm font-semibold text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Overlay for mobile -->
         <div x-show="sidebarOpen"
              @click="sidebarOpen = false"
@@ -208,6 +247,38 @@
     </div>
 
     <script>
+    function confirmModal() {
+        return {
+            open: false,
+            title: 'Delete item',
+            message: 'This action cannot be undone.',
+            _resolve: null,
+            show(title, message) {
+                this.title = title;
+                this.message = message;
+                this.open = true;
+                return new Promise(resolve => this._resolve = resolve);
+            },
+            confirm() { this.open = false; this._resolve(true); },
+            cancel()  { this.open = false; this._resolve(false); },
+        };
+    }
+
+    // Global helper — call from any component: await confirmDelete('Category name')
+    window.confirmDelete = function(itemName) {
+        const modal = window._confirmModalInstance;
+        if (!modal) return Promise.resolve(window.confirm(`Delete "${itemName}"?`));
+        return modal.show(`Delete "${itemName}"?`, 'This action cannot be undone.');
+    };
+
+    document.addEventListener('alpine:init', () => {
+        // Capture the modal instance once Alpine mounts it
+        setTimeout(() => {
+            const el = document.querySelector('[x-data="confirmModal()"]');
+            if (el && el._x_dataStack) window._confirmModalInstance = el._x_dataStack[0];
+        }, 100);
+    });
+
     function layoutData() {
         return {
             sidebarOpen: false,

@@ -152,7 +152,7 @@ export default function budgetsData() {
             }
         },
         async deleteBudget(id) {
-            if (!confirm('Are you sure you want to delete this budget?')) return;
+            if (!await window.confirmDelete('this budget')) return;
             try {
                 await deleteDoc(doc(db, 'budgets', id));
                 await this.fetchBudgets();
