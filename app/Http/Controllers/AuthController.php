@@ -181,10 +181,14 @@ class AuthController extends Controller
         }
 
         $payload = $response->json();
-        $clientId = config('services.google.client_id');
+        $allowedClients = array_filter([
+            config('services.google.client_id'),
+            config('services.google.firebase_client_id'),
+        ]);
 
         // Ensure the token was issued for our app
-        if (!in_array($clientId, [$payload['aud'] ?? '', $payload['azp'] ?? ''])) {
+        $tokenAudiences = array_filter([$payload['aud'] ?? '', $payload['azp'] ?? '']);
+        if (!array_intersect($allowedClients, $tokenAudiences)) {
             return response()->json(['message' => 'Token audience mismatch.'], 401);
         }
 
