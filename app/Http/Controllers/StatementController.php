@@ -9,10 +9,109 @@ class StatementController extends Controller
     public function preview(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,txt|max:5120',
+            'file' => 'required|file|mimes:csv,txt,pdf|max:10240',
         ]);
 
-        $content = file_get_contents($request->file('file')->getRealPath());
+        $file = $request->file('file');
+        $mime = $file->getMimeType();
+
+        if ($mime === 'application/pdf' || strtolower($file->getClientOriginalExtension()) === 'pdf') {
+            return $this->previewPdf($file);
+        }
+
+        return $this->previewCsv($file);
+    }
+
+    private function previewPdf($file)
+    {
+        try {
+            $parser = new \Smalot\PdfParser\Parser();
+            $pdf    = $parser->parseFile($file->getRealPath());
+            $text   = $pdf->getText();
+        } catch (\Throwable $e) {
+            return response()->json(['error' => 'Could not read PDF: ' . $e->getMessage()], 422);
+        }
+
+        $transactions = $this->parsePdfText($text);
+
+        if (empty($transactions)) {
+            return response()->json([
+                'error' => 'No transactions found in PDF. Make sure it is a bank statement with transaction history.',
+            ], 422);
+        }
+
+        return response()->json([
+            'transactions' => $transactions,
+            'count'        => count($transactions),
+        ]);
+    }
+
+    private function parsePdfText(string $text): array
+    {
+        $lines        = explode("\n", $text);
+        $transactions = [];
+
+        // Date patterns: 01/03/2026 | 01-03-2026 | 01 Mar 2026 | 1 Mar 26
+        $datePattern = '/^(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{1,2}\s+[A-Za-z]{3}\s+\d{2,4})/';
+
+        // Amount pattern: 1,234.56 or 1234.56
+        $amountPattern = '/([\d,]+\.\d{2})/';
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (!preg_match($datePattern, $line, $dateMatch)) continue;
+
+            $rawDate = $dateMatch[1];
+            $date    = $this->parseDate($rawDate);
+            if (!$date) continue;
+
+            // Find all amounts in the line
+            preg_match_all($amountPattern, $line, $amountMatches);
+            $amounts = array_map(fn($a) => $this->parseAmount($a), $amountMatches[1]);
+            $amounts = array_filter($amounts, fn($a) => $a > 0);
+            $amounts = array_values($amounts);
+
+            if (empty($amounts)) continue;
+
+            // Strip the date and any trailing amounts from description
+            $desc = preg_replace($datePattern, '', $line);
+            $desc = preg_replace($amountPattern, '', $desc);
+            $desc = preg_replace('/\s{2,}/', ' ', trim($desc));
+            $desc = trim($desc, " \t-,");
+
+            if (strlen($desc) < 2) continue;
+
+            // Heuristic: if there are 2+ amounts, the first non-balance is the transaction
+            // Last amount is usually the running balance — ignore it if 3+ amounts
+            $txAmount = count($amounts) >= 3 ? $amounts[1] : $amounts[0];
+
+            // Detect credit/income keywords in description
+            $lower = strtolower($desc);
+            $type  = 'expense';
+            if (preg_match('/\b(credit|salary|payment received|transfer in|deposit|refund|reversal|cr)\b/', $lower)) {
+                $type = 'income';
+            }
+            // Also check if line contains "CR" suffix on amounts
+            if (preg_match('/[\d,]+\.\d{2}\s*CR\b/i', $line)) {
+                $type = 'income';
+            }
+
+            if ($txAmount <= 0) continue;
+
+            $transactions[] = [
+                'date'        => $date,
+                'description' => $desc,
+                'amount'      => round($txAmount, 2),
+                'type'        => $type,
+            ];
+        }
+
+        return $transactions;
+    }
+
+    private function previewCsv($file)
+    {
+        $content = file_get_contents($file->getRealPath());
 
         // Normalize line endings
         $content = str_replace(["\r\n", "\r"], "\n", $content);

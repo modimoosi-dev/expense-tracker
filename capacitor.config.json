@@ -4,7 +4,7 @@
   "webDir": "public",
   "server": {
     "url": "https://expense-tracker-1-0mg2.onrender.com",
-    "allowNavigation": ["expense-tracker-1-0mg2.onrender.com"]
+    "allowNavigation": ["expense-tracker-1-0mg2.onrender.com", "accounts.google.com", "*.google.com"]
   },
   "plugins": {
     "FirebaseAuthentication": {

@@ -10,10 +10,11 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 public class CsvIntentPlugin extends Plugin {
 
     @PluginMethod
-    public void getPendingCsv(PluginCall call) {
-        String csv = ((MainActivity) getActivity()).consumePendingCsv();
+    public void getPendingFile(PluginCall call) {
+        MainActivity activity = (MainActivity) getActivity();
         JSObject result = new JSObject();
-        result.put("csv", csv != null ? csv : "");
+        result.put("base64",   activity.consumePendingBase64());
+        result.put("mimeType", activity.consumePendingMimeType());
         call.resolve(result);
     }
 }

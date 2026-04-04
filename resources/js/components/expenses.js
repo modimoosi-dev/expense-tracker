@@ -46,13 +46,19 @@ export default function expensesData() {
                 this.openStatementModal();
             }
 
-            // Check if app was opened via "Open with" on a CSV file
-            const pendingCsv = sessionStorage.getItem('pendingCsv');
-            if (pendingCsv) {
-                sessionStorage.removeItem('pendingCsv');
+            // Check if app was opened via "Open with" on a PDF/CSV file
+            const pendingBase64 = sessionStorage.getItem('pendingFileBase64');
+            if (pendingBase64) {
+                const mimeType = sessionStorage.getItem('pendingFileMimeType') || 'application/pdf';
+                sessionStorage.removeItem('pendingFileBase64');
+                sessionStorage.removeItem('pendingFileMimeType');
                 this.openStatementModal();
-                const blob = new Blob([pendingCsv], { type: 'text/csv' });
-                const file = new File([blob], 'statement.csv', { type: 'text/csv' });
+                const binary = atob(pendingBase64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                const blob = new Blob([bytes], { type: mimeType });
+                const ext  = mimeType.includes('pdf') ? 'pdf' : 'csv';
+                const file = new File([blob], `statement.${ext}`, { type: mimeType });
                 await this.uploadStatement({ target: { files: [file], value: '' } });
             }
 

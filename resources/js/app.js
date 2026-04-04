@@ -56,15 +56,16 @@ Alpine.data('budgetsData', budgetsData);
 Alpine.data('dashboardData', dashboardData);
 Alpine.start();
 
-// On native: check if app was opened via "Open with" on a CSV file
+// On native: check if app was opened via "Open with" on a PDF/CSV file
 if (window.Capacitor?.isNativePlatform()) {
     window.addEventListener('load', async () => {
         try {
             const CsvIntent = window.Capacitor?.Plugins?.CsvIntent;
             if (!CsvIntent) return;
-            const { csv } = await CsvIntent.getPendingCsv();
-            if (csv) {
-                sessionStorage.setItem('pendingCsv', csv);
+            const { base64, mimeType } = await CsvIntent.getPendingFile();
+            if (base64) {
+                sessionStorage.setItem('pendingFileBase64', base64);
+                sessionStorage.setItem('pendingFileMimeType', mimeType || 'application/pdf');
                 if (!window.location.pathname.includes('/expenses')) {
                     window.location.href = '/expenses?import=statement';
                 }

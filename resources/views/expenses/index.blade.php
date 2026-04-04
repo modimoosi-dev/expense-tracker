@@ -230,9 +230,9 @@
                         <svg class="w-8 h-8 text-orange-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                         </svg>
-                        <p class="text-sm font-semibold text-orange-600">Tap to upload CSV</p>
-                        <p class="text-xs text-orange-400 mt-1">Export from your bank's internet banking</p>
-                        <input type="file" accept=".csv,.txt" class="hidden" @change="uploadStatement($event)">
+                        <p class="text-sm font-semibold text-orange-600">Tap to upload PDF or CSV</p>
+                        <p class="text-xs text-orange-400 mt-1">Export statement from your bank's internet banking</p>
+                        <input type="file" accept=".csv,.txt,.pdf" class="hidden" @change="uploadStatement($event)">
                     </label>
                     <div class="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-500 space-y-1">
                         <p class="font-semibold text-gray-600 mb-1">How to export:</p>
@@ -297,7 +297,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                         </svg>
                         Upload a different file
-                        <input type="file" accept=".csv,.txt" class="hidden" @change="uploadStatement($event)">
+                        <input type="file" accept=".csv,.txt,.pdf" class="hidden" @change="uploadStatement($event)">
                     </label>
                 </div>
             </div>

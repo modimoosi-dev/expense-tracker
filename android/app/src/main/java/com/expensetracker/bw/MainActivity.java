@@ -3,16 +3,18 @@ package com.expensetracker.bw;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
+import android.webkit.MimeTypeMap;
 import android.webkit.WebSettings;
 
 import com.getcapacitor.BridgeActivity;
 
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends BridgeActivity {
 
-    private String pendingCsv = null;
+    private String pendingBase64   = "";
+    private String pendingMimeType = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,7 +48,15 @@ public class MainActivity extends BridgeActivity {
             try (InputStream is = getContentResolver().openInputStream(uri)) {
                 if (is != null) {
                     byte[] bytes = is.readAllBytes();
-                    pendingCsv = new String(bytes, StandardCharsets.UTF_8);
+                    pendingBase64 = Base64.encodeToString(bytes, Base64.NO_WRAP);
+
+                    // Detect MIME type
+                    String mime = getContentResolver().getType(uri);
+                    if (mime == null) {
+                        String ext = MimeTypeMap.getFileExtensionFromUrl(uri.toString());
+                        mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
+                    }
+                    pendingMimeType = mime != null ? mime : "application/octet-stream";
                 }
             } catch (Exception e) {
                 // Ignore — user will upload manually
@@ -54,9 +64,15 @@ public class MainActivity extends BridgeActivity {
         }
     }
 
-    public String consumePendingCsv() {
-        String csv = pendingCsv;
-        pendingCsv = null;
-        return csv;
+    public String consumePendingBase64() {
+        String b = pendingBase64;
+        pendingBase64 = "";
+        return b;
+    }
+
+    public String consumePendingMimeType() {
+        String m = pendingMimeType;
+        pendingMimeType = "";
+        return m;
     }
 }
