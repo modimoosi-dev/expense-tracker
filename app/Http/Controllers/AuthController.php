@@ -189,7 +189,14 @@ class AuthController extends Controller
         // Ensure the token was issued for our app
         $tokenAudiences = array_filter([$payload['aud'] ?? '', $payload['azp'] ?? '']);
         if (!array_intersect($allowedClients, $tokenAudiences)) {
-            return response()->json(['message' => 'Token audience mismatch.'], 401);
+            return response()->json([
+                'message' => 'Token audience mismatch.',
+                'debug' => [
+                    'aud' => $payload['aud'] ?? null,
+                    'azp' => $payload['azp'] ?? null,
+                    'allowed' => $allowedClients,
+                ]
+            ], 401);
         }
 
         $email = $payload['email'] ?? null;
