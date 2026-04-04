@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
@@ -97,7 +98,35 @@ class AuthController extends Controller
 
         Auth::login($user, true);
 
+        // If request wants a deep link (mobile app), return one-time token
+        $redirectTo = request()->query('redirect_to');
+        if ($redirectTo === 'app') {
+            $token = Str::random(40);
+            Cache::put('oauth_token_' . $token, $user->id, now()->addMinutes(2));
+            return redirect('com.expensetracker.bw://auth?token=' . $token);
+        }
+
         return redirect()->route('dashboard');
+    }
+
+    public function verifyOAuthToken(Request $request)
+    {
+        $token = $request->input('token');
+        $userId = Cache::pull('oauth_token_' . $token);
+
+        if (!$userId) {
+            return response()->json(['message' => 'Invalid or expired token.'], 401);
+        }
+
+        $user = User::find($userId);
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        Auth::login($user, true);
+        $request->session()->regenerate();
+
+        return response()->json(['success' => true]);
     }
 
     public function logout(Request $request)

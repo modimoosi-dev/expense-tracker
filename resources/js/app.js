@@ -60,3 +60,31 @@ Alpine.data('budgetsData', budgetsData);
 Alpine.data('dashboardData', dashboardData);
 Alpine.start();
 
+// Handle Google OAuth deep link callback (mobile only)
+if (window.Capacitor) {
+    import('@capacitor/app').then(({ App }) => {
+        App.addListener('appUrlOpen', async ({ url }) => {
+            if (url.startsWith('com.expensetracker.bw://auth')) {
+                const token = new URL(url).searchParams.get('token');
+                if (!token) return;
+
+                import('@capacitor/browser').then(({ Browser }) => Browser.close()).catch(() => {});
+
+                const res = await fetch('/auth/verify-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': window.csrfToken,
+                    },
+                    body: JSON.stringify({ token }),
+                    credentials: 'include',
+                });
+
+                if (res.ok) {
+                    window.location.href = '/dashboard';
+                }
+            }
+        });
+    }).catch(() => {});
+}
+
