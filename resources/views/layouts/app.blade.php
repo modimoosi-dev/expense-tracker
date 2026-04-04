@@ -127,11 +127,21 @@
                         </svg>
                     </button>
                     <h2 class="text-base font-semibold text-gray-800">@yield('page-title', 'Dashboard')</h2>
-                    <a href="{{ route('settings.index') }}" class="p-1">
-                        <img :src="userProfilePicture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userName) + '&size=80&background=6366F1&color=fff'"
-                             class="w-8 h-8 rounded-full object-cover ring-2 ring-indigo-200"
-                             :alt="userName">
-                    </a>
+                    <div class="flex items-center gap-1">
+                        <a href="{{ route('settings.index') }}" class="p-1">
+                            <img :src="userProfilePicture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userName) + '&size=80&background=6366F1&color=fff'"
+                                 class="w-8 h-8 rounded-full object-cover ring-2 ring-indigo-200"
+                                 :alt="userName">
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="p-2 text-gray-500 active:bg-gray-100 rounded-lg" title="Logout">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </header>
 
