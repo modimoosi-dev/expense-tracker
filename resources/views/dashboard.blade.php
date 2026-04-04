@@ -13,8 +13,8 @@
         <div class="relative p-6">
             <p class="text-indigo-200 text-sm font-medium mb-1">Net Balance</p>
             <p class="text-white text-4xl font-bold tracking-tight mb-5" x-text="formatCurrency(stats.balance)">P0.00</p>
-            <div class="flex gap-6">
-                <div class="flex items-center gap-2">
+            <div class="flex gap-6 overflow-x-auto pb-1 scrollbar-none">
+                <div class="flex items-center gap-2 shrink-0">
                     <div class="p-1.5 bg-white/20 rounded-lg">
                         <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
@@ -25,7 +25,7 @@
                         <p class="text-white font-semibold text-sm" x-text="formatCurrency(stats.total_income)"></p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 shrink-0">
                     <div class="p-1.5 bg-white/20 rounded-lg">
                         <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
@@ -36,7 +36,7 @@
                         <p class="text-white font-semibold text-sm" x-text="formatCurrency(stats.total_expense)"></p>
                     </div>
                 </div>
-                <div class="ml-auto text-right">
+                <div class="shrink-0 text-right">
                     <p class="text-indigo-200 text-xs">Saved</p>
                     <p class="text-white font-semibold text-sm" x-text="stats.savings_rate + '%'"></p>
                 </div>

@@ -81,6 +81,10 @@
 .dark [class*="from-purple-600"] .bg-white,
 .dark [class*="from-purple-700"] .bg-white { background-color: rgb(255 255 255); }
 
+/* Hide scrollbar but keep scroll functionality */
+.scrollbar-none { scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
 /* Modern glassmorphism effect */
 .glass {
     background: rgba(255, 255, 255, 0.8);
