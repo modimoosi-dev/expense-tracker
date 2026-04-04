@@ -24,3 +24,4 @@ Homestead.yaml
 Thumbs.db
 firebase-service-account.json
 android/app/expense-tracker.jks
+android/app/google-services.json

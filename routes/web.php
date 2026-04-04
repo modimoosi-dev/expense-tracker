@@ -17,6 +17,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/auth/google', [AuthController::class, 'googleRedirect'])->name('auth.google');
 Route::get('/auth/google/callback', [AuthController::class, 'googleCallback']);
 Route::post('/auth/verify-token', [AuthController::class, 'verifyOAuthToken'])->name('auth.verify-token');
+Route::post('/auth/google/native', [AuthController::class, 'googleNativeCallback']);
 
 // Protected routes
 Route::middleware('auth')->group(function () {

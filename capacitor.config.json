@@ -7,6 +7,10 @@
     "allowNavigation": ["expense-tracker-1-0mg2.onrender.com"]
   },
   "plugins": {
+    "FirebaseAuthentication": {
+      "skipNativeAuth": false,
+      "providers": ["google.com"]
+    },
     "PushNotifications": {
       "presentationOptions": [
         "badge",

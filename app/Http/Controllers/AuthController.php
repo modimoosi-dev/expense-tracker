@@ -110,6 +110,33 @@ class AuthController extends Controller
         return redirect()->route('dashboard');
     }
 
+    public function googleNativeCallback(Request $request)
+    {
+        $idToken = $request->input('id_token');
+
+        try {
+            $verifiedToken = app('firebase.auth')->verifyIdToken($idToken);
+            $uid   = $verifiedToken->claims()->get('sub');
+            $email = $verifiedToken->claims()->get('email');
+            $name  = $verifiedToken->claims()->get('name') ?? explode('@', $email)[0];
+            $photo = $verifiedToken->claims()->get('picture');
+        } catch (\Throwable $e) {
+            return response()->json(['message' => 'Invalid token.'], 401);
+        }
+
+        $user = User::firstOrCreate(
+            ['email' => $email],
+            ['name' => $name, 'password' => Hash::make(Str::random(24)), 'currency' => 'BWP']
+        );
+
+        if ($photo) $user->update(['profile_picture' => $photo]);
+
+        Auth::login($user, true);
+        $request->session()->regenerate();
+
+        return response()->json(['success' => true]);
+    }
+
     public function verifyOAuthToken(Request $request)
     {
         $token = $request->input('token');

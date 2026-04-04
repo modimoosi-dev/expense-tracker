@@ -65,7 +65,30 @@ Alpine.start();
 // Google OAuth handler — used by login page button
 window.handleGoogleLogin = async function(googleUrl) {
     if (window.Capacitor) {
-        await Browser.open({ url: googleUrl, presentationStyle: 'popover', toolbarColor: '#4f46e5' });
+        try {
+            // Native Google Sign-In — shows account picker, no browser
+            const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
+            const result = await FirebaseAuthentication.signInWithGoogle();
+            const idToken = result.credential?.idToken;
+            if (!idToken) throw new Error('No ID token');
+
+            // Exchange Firebase ID token for Laravel session
+            const res = await fetch('/auth/google/native', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': window.csrfToken,
+                },
+                body: JSON.stringify({ id_token: idToken }),
+                credentials: 'include',
+            });
+            if (res.ok) window.location.href = '/dashboard';
+            else throw new Error('Server auth failed');
+        } catch (err) {
+            console.error('Native Google sign-in failed:', err);
+            // Fallback to browser flow
+            Browser.open({ url: googleUrl, presentationStyle: 'popover', toolbarColor: '#4f46e5' });
+        }
     } else {
         window.location.href = googleUrl;
     }
