@@ -38,19 +38,22 @@ export default function expensesData() {
             reference: ''
         },
         async init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const type = urlParams.get('type');
+            const importParam = urlParams.get('import');
+
+            if (importParam === 'statement') {
+                this.openStatementModal();
+            }
+
             await this.fetchCategories();
             await this.fetchExpenses();
             this.filterCategoriesByType();
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const type = urlParams.get('type');
             if (type === 'expense' || type === 'income') {
                 this.form.type = type;
                 this.filterCategoriesByType();
                 this.showModal = true;
-            }
-            if (urlParams.get('import') === 'statement') {
-                this.openStatementModal();
             }
         },
         async fetchExpenses() {
