@@ -6,6 +6,7 @@ export default function expensesData() {
         expenses: { data: [], current_page: 1, last_page: 1, total: 0 },
         categories: [],
         filteredCategories: [],
+        isNative: window.Capacitor?.isNativePlatform() ?? false,
         showModal: false,
         editingExpense: null,
         listening: false,

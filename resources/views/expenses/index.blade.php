@@ -6,33 +6,33 @@
 @section('content')
 <div x-data="expensesData">
     <!-- Header -->
-    <div class="flex flex-col mb-6 space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+    <div class="flex flex-col mb-6 space-y-3">
         <div>
             <h1 class="text-2xl font-bold text-gray-800">Transactions</h1>
             <p class="text-gray-600">Track all your income and expenses</p>
         </div>
-        <div class="flex items-center gap-2">
-            <!-- Voice input button -->
-            <button @click="startVoiceInput()"
+        <div class="flex flex-wrap gap-2">
+            <!-- Voice input — hidden on native Capacitor (not supported in WebView) -->
+            <button x-show="!isNative" @click="startVoiceInput()"
                     :class="listening ? 'bg-red-500 hover:bg-red-600 animate-pulse' : 'bg-purple-600 hover:bg-purple-700'"
-                    class="px-4 py-2 text-white transition-colors rounded-lg flex items-center gap-2"
+                    class="px-3 py-2 text-white transition-colors rounded-lg flex items-center gap-2 text-sm"
                     title="Voice: say 'Add expense, lunch, P85'">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-7a3 3 0 01-3-3V5a3 3 0 016 0v6a3 3 0 01-3 3z"></path>
                 </svg>
                 <span x-text="listening ? 'Listening…' : 'Voice'"></span>
             </button>
             <!-- SMS import button -->
             <button @click="openSmsModal()"
-                    class="px-4 py-2 text-white transition-colors bg-green-600 hover:bg-green-700 rounded-lg flex items-center gap-2"
-                    title="Import from Orange Money / MyZaka SMS">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="px-3 py-2 text-white transition-colors bg-green-600 hover:bg-green-700 rounded-lg flex items-center gap-2 text-sm"
+                    title="Copy an Orange Money or MyZaka SMS and paste it here">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
                 </svg>
                 Import SMS
             </button>
-            <button @click="openModal()" class="px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button @click="openModal()" class="px-3 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
                 Add Transaction
