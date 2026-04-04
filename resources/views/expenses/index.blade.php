@@ -252,8 +252,27 @@
                     Parsing statement…
                 </div>
 
+                <!-- Password required -->
+                <div x-show="statementNeedsPassword" class="mb-4">
+                    <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                        <p class="text-sm font-semibold text-amber-800 mb-1">This PDF is password protected</p>
+                        <p class="text-xs text-amber-600 mb-3">FNB statements are usually protected with your ID number or a custom password you set.</p>
+                        <div class="flex gap-2">
+                            <input type="password" x-model="statementPassword"
+                                   placeholder="Enter PDF password…"
+                                   @keydown.enter="submitStatementPassword()"
+                                   class="flex-1 px-3 py-2 border border-amber-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
+                            <button type="button" @click="submitStatementPassword()"
+                                    class="px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600">
+                                Unlock
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Error -->
-                <div x-show="statementError" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700" x-text="statementError"></div>
+                <div x-show="statementError && !statementNeedsPassword" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700" x-text="statementError"></div>
+                <div x-show="statementError && statementNeedsPassword" class="mb-2 text-sm text-red-600" x-text="statementError"></div>
 
                 <!-- Transaction preview table -->
                 <div x-show="statementRows.length > 0">

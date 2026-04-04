@@ -9,27 +9,34 @@ class StatementController extends Controller
     public function preview(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,txt,pdf|max:10240',
+            'file'     => 'required|file|mimes:csv,txt,pdf|max:10240',
+            'password' => 'nullable|string|max:255',
         ]);
 
         $file = $request->file('file');
         $mime = $file->getMimeType();
 
         if ($mime === 'application/pdf' || strtolower($file->getClientOriginalExtension()) === 'pdf') {
-            return $this->previewPdf($file);
+            return $this->previewPdf($file, $request->input('password'));
         }
 
         return $this->previewCsv($file);
     }
 
-    private function previewPdf($file)
+    private function previewPdf($file, ?string $password = null)
     {
         try {
-            $parser = new \Smalot\PdfParser\Parser();
-            $pdf    = $parser->parseFile($file->getRealPath());
+            $config = new \Smalot\PdfParser\Config();
+            $parser = new \Smalot\PdfParser\Parser([], $config);
+            $pdf    = $parser->parseFile($file->getRealPath(), $password ?? '');
             $text   = $pdf->getText();
         } catch (\Throwable $e) {
-            return response()->json(['error' => 'Could not read PDF: ' . $e->getMessage()], 422);
+            $msg = $e->getMessage();
+            // Detect encryption errors from smalot/pdfparser
+            if (stripos($msg, 'secured') !== false || stripos($msg, 'encrypt') !== false || stripos($msg, 'password') !== false) {
+                return response()->json(['error' => 'password_required'], 422);
+            }
+            return response()->json(['error' => 'Could not read PDF: ' . $msg], 422);
         }
 
         $transactions = $this->parsePdfText($text);

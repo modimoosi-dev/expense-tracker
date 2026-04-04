@@ -21,6 +21,9 @@ export default function expensesData() {
         statementError: '',
         statementLoading: false,
         statementImporting: false,
+        statementNeedsPassword: false,
+        statementPassword: '',
+        statementPendingFile: null,
         filters: {
             type: '',
             category_id: '',
@@ -269,17 +272,33 @@ export default function expensesData() {
             this.statementError = '';
             this.statementLoading = false;
             this.statementImporting = false;
+            this.statementNeedsPassword = false;
+            this.statementPassword = '';
+            this.statementPendingFile = null;
         },
         async uploadStatement(event) {
             const file = event.target.files[0];
             if (!file) return;
+            this.statementPendingFile = file;
+            this.statementNeedsPassword = false;
+            this.statementPassword = '';
+            await this._parseStatement(file, '');
+            event.target.value = '';
+        },
+        async submitStatementPassword() {
+            if (!this.statementPendingFile) return;
+            await this._parseStatement(this.statementPendingFile, this.statementPassword);
+        },
+        async _parseStatement(file, password) {
             this.statementLoading = true;
             this.statementError = '';
             this.statementRows = [];
             this.statementSelected = [];
+            this.statementNeedsPassword = false;
             try {
                 const formData = new FormData();
                 formData.append('file', file);
+                if (password) formData.append('password', password);
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
                 const resp = await fetch('/api/v1/statement/preview', {
                     method: 'POST',
@@ -290,6 +309,9 @@ export default function expensesData() {
                 if (resp.ok) {
                     this.statementRows = data.transactions;
                     this.statementSelected = data.transactions.map((_, i) => i);
+                } else if (data.error === 'password_required') {
+                    this.statementNeedsPassword = true;
+                    this.statementError = password ? 'Incorrect password. Try again.' : '';
                 } else {
                     this.statementError = data.error || 'Failed to parse file.';
                 }
@@ -297,7 +319,6 @@ export default function expensesData() {
                 this.statementError = 'Network error uploading file.';
             } finally {
                 this.statementLoading = false;
-                event.target.value = '';
             }
         },
         toggleStatementRow(idx) {
