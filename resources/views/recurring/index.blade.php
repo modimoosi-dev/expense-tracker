@@ -19,20 +19,20 @@
     </div>
 
     <!-- Filters -->
-    <div class="flex gap-4 mb-6">
-        <select x-model="filters.type" @change="fetchRecurring()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+    <div class="flex flex-wrap gap-3 mb-6">
+        <select x-model="filters.type" @change="fetchRecurring()" class="flex-1 min-w-[120px] px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
             <option value="">All Types</option>
             <option value="income">Income</option>
             <option value="expense">Expense</option>
         </select>
-        <select x-model="filters.frequency" @change="fetchRecurring()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <select x-model="filters.frequency" @change="fetchRecurring()" class="flex-1 min-w-[130px] px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
             <option value="">All Frequencies</option>
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>
             <option value="yearly">Yearly</option>
         </select>
-        <select x-model="filters.is_active" @change="fetchRecurring()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <select x-model="filters.is_active" @change="fetchRecurring()" class="flex-1 min-w-[110px] px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
             <option value="">All Status</option>
             <option value="1">Active</option>
             <option value="0">Inactive</option>
@@ -40,55 +40,43 @@
     </div>
 
     <!-- Recurring List -->
-    <div class="overflow-hidden bg-white rounded-lg shadow">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Description</th>
-                        <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Amount</th>
-                        <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Type</th>
-                        <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Frequency</th>
-                        <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Next Run</th>
-                        <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status</th>
-                        <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    <template x-for="item in recurringList" :key="item.id">
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900" x-text="item.description || 'No description'"></div>
-                                    <div class="text-sm text-gray-500" x-text="item.category?.name"></div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="text-sm font-semibold" :class="item.type === 'income' ? 'text-green-600' : 'text-red-600'" x-text="formatCurrency(item.amount)"></span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full" :class="item.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" x-text="item.type"></span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap capitalize" x-text="item.frequency"></td>
-                            <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap" x-text="formatDate(getNextRunDate(item))"></td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full" :class="item.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'" x-text="item.is_active ? 'Active' : 'Inactive'"></span>
-                            </td>
-                            <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
-                                <button @click="toggleStatus(item)" class="mr-3 text-blue-600 hover:text-blue-900" x-text="item.is_active ? 'Pause' : 'Activate'"></button>
-                                <button @click="generateNow(item)" class="mr-3 text-green-600 hover:text-green-900" x-show="item.is_active">Generate</button>
-                                <button @click="editRecurring(item)" class="mr-3 text-indigo-600 hover:text-indigo-900">Edit</button>
-                                <button @click="deleteRecurring(item.id)" class="text-red-600 hover:text-red-900">Delete</button>
-                            </td>
-                        </tr>
-                    </template>
-                    <tr x-show="recurringList.length === 0">
-                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                            No recurring transactions found. Click "Add Recurring" to create one.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="space-y-3">
+        <template x-for="item in recurringList" :key="item.id">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-semibold text-gray-900 truncate" x-text="item.description || 'No description'"></span>
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full shrink-0"
+                                  :class="item.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                  x-text="item.type"></span>
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full shrink-0"
+                                  :class="item.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'"
+                                  x-text="item.is_active ? 'Active' : 'Inactive'"></span>
+                        </div>
+                        <div class="mt-1 text-sm text-gray-500" x-text="item.category?.name"></div>
+                        <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600">
+                            <span class="font-semibold" :class="item.type === 'income' ? 'text-green-600' : 'text-red-600'" x-text="formatCurrency(item.amount)"></span>
+                            <span class="capitalize" x-text="item.frequency"></span>
+                            <span x-text="'Next: ' + formatDate(getNextRunDate(item))"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3 flex flex-wrap gap-2 border-t border-gray-100 pt-3">
+                    <button @click="toggleStatus(item)"
+                            class="px-3 py-1 text-xs font-medium rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100"
+                            x-text="item.is_active ? 'Pause' : 'Activate'"></button>
+                    <button @click="generateNow(item)" x-show="item.is_active"
+                            class="px-3 py-1 text-xs font-medium rounded-lg bg-green-50 text-green-600 hover:bg-green-100">Generate</button>
+                    <button @click="editRecurring(item)"
+                            class="px-3 py-1 text-xs font-medium rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100">Edit</button>
+                    <button @click="deleteRecurring(item.id)"
+                            class="px-3 py-1 text-xs font-medium rounded-lg bg-red-50 text-red-600 hover:bg-red-100">Delete</button>
+                </div>
+            </div>
+        </template>
+        <div x-show="recurringList.length === 0" class="bg-white rounded-xl shadow-sm border border-gray-100 px-6 py-10 text-center text-gray-500">
+            No recurring transactions found. Tap "Add Recurring" to create one.
         </div>
     </div>
 

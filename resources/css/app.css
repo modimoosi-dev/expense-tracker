@@ -24,6 +24,8 @@
 .dark .bg-white { background-color: rgb(17 24 39); }
 .dark .bg-gray-50 { background-color: rgb(31 41 55); }
 .dark .bg-gray-100 { background-color: rgb(31 41 55); }
+.dark .bg-gray-200 { background-color: rgb(55 65 81); }
+.dark .hover\:bg-gray-300:hover { background-color: rgb(75 85 99); }
 
 .dark .text-gray-900 { color: rgb(249 250 251); }
 .dark .text-gray-800 { color: rgb(243 244 246); }
