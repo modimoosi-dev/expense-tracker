@@ -54,6 +54,23 @@
 .dark .shadow-modern    { box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); }
 .dark .shadow-modern-lg { box-shadow: 0 20px 60px -15px rgba(0,0,0,0.6); }
 
+/* Dark mode gradient-stop overrides for light shades */
+.dark .from-indigo-50 { --tw-gradient-from: rgb(30 27 75 / 0.4); }
+.dark .via-indigo-50  { --tw-gradient-via:  rgb(30 27 75 / 0.4); }
+.dark .to-indigo-50   { --tw-gradient-to:   rgb(30 27 75 / 0.4); }
+.dark .from-purple-50 { --tw-gradient-from: rgb(46 16 101 / 0.4); }
+.dark .via-purple-50  { --tw-gradient-via:  rgb(46 16 101 / 0.4); }
+.dark .to-purple-50   { --tw-gradient-to:   rgb(46 16 101 / 0.4); }
+.dark .from-pink-50   { --tw-gradient-from: rgb(80 7 36 / 0.4); }
+.dark .via-pink-50    { --tw-gradient-via:  rgb(80 7 36 / 0.4); }
+.dark .to-pink-50     { --tw-gradient-to:   rgb(80 7 36 / 0.4); }
+.dark .from-blue-50   { --tw-gradient-from: rgb(23 37 84 / 0.4); }
+.dark .via-blue-50    { --tw-gradient-via:  rgb(23 37 84 / 0.4); }
+.dark .to-blue-50     { --tw-gradient-to:   rgb(23 37 84 / 0.4); }
+.dark .from-gray-50   { --tw-gradient-from: rgb(31 41 55 / 0.6); }
+.dark .via-gray-50    { --tw-gradient-via:  rgb(31 41 55 / 0.6); }
+.dark .to-gray-50     { --tw-gradient-to:   rgb(31 41 55 / 0.6); }
+
 /* Protect white elements inside colored gradient containers */
 .dark [class*="from-indigo-6"] .bg-white,
 .dark [class*="from-indigo-5"] .bg-white,
