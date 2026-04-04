@@ -98,12 +98,13 @@ class AuthController extends Controller
 
         Auth::login($user, true);
 
-        // If request wants a deep link (mobile app), return one-time token
+        // If request wants a deep link (mobile app), return HTML page that redirects via JS
         $redirectTo = request()->query('redirect_to');
         if ($redirectTo === 'app') {
             $token = Str::random(40);
             Cache::put('oauth_token_' . $token, $user->id, now()->addMinutes(2));
-            return redirect('com.expensetracker.bw://auth?token=' . $token);
+            $deepLink = 'com.expensetracker.bw://auth?token=' . $token;
+            return response()->view('auth.oauth-callback', ['deepLink' => $deepLink]);
         }
 
         return redirect()->route('dashboard');
