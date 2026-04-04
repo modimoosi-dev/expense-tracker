@@ -4,6 +4,19 @@ services:
     runtime: docker
     plan: free
     dockerfilePath: ./Dockerfile
+    dockerBuildArgs:
+      - key: VITE_FIREBASE_API_KEY
+        fromEnv: VITE_FIREBASE_API_KEY
+      - key: VITE_FIREBASE_AUTH_DOMAIN
+        fromEnv: VITE_FIREBASE_AUTH_DOMAIN
+      - key: VITE_FIREBASE_PROJECT_ID
+        fromEnv: VITE_FIREBASE_PROJECT_ID
+      - key: VITE_FIREBASE_STORAGE_BUCKET
+        fromEnv: VITE_FIREBASE_STORAGE_BUCKET
+      - key: VITE_FIREBASE_MESSAGING_SENDER_ID
+        fromEnv: VITE_FIREBASE_MESSAGING_SENDER_ID
+      - key: VITE_FIREBASE_APP_ID
+        fromEnv: VITE_FIREBASE_APP_ID
     envVars:
       - key: APP_ENV
         value: production
