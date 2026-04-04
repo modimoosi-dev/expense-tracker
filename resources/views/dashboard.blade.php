@@ -50,8 +50,8 @@
         </div>
     </div>
 
-    <!-- Quick Actions — 4 buttons -->
-    <div class="grid grid-cols-2 gap-3 mb-6 sm:grid-cols-4">
+    <!-- Quick Actions — 5 buttons -->
+    <div class="grid grid-cols-3 gap-3 mb-6 sm:grid-cols-5">
         <a href="{{ route('expenses.index') }}?type=expense"
            class="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-red-200 hover:shadow-md transition-all">
             <div class="p-2.5 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl group-hover:scale-110 transition-transform">
@@ -87,6 +87,15 @@
                 </svg>
             </div>
             <span class="text-xs font-semibold text-gray-700 group-hover:text-purple-600 transition-colors">Recurring</span>
+        </a>
+        <a href="{{ route('expenses.index') }}?import=statement"
+           class="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-orange-200 hover:shadow-md transition-all">
+            <div class="p-2.5 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl group-hover:scale-110 transition-transform">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+            </div>
+            <span class="text-xs font-semibold text-gray-700 group-hover:text-orange-600 transition-colors">Import</span>
         </a>
     </div>
 

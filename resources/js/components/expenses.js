@@ -49,6 +49,9 @@ export default function expensesData() {
                 this.filterCategoriesByType();
                 this.showModal = true;
             }
+            if (urlParams.get('import') === 'statement') {
+                this.openStatementModal();
+            }
         },
         async fetchExpenses() {
             try {
