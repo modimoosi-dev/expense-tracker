@@ -163,7 +163,11 @@
             } else {
                 const text = await res.text();
                 let msg = 'Sign-in failed (' + res.status + ')';
-                try { msg = JSON.parse(text).message || msg; } catch(e) { msg += ': ' + text.substring(0, 100); }
+                try {
+                    const j = JSON.parse(text);
+                    msg = j.message || msg;
+                    if (j.debug) msg += ' | ' + JSON.stringify(j.debug);
+                } catch(e) { msg += ': ' + text.substring(0, 150); }
                 throw new Error(msg);
             }
         } catch (err) {
