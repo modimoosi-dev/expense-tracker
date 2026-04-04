@@ -181,22 +181,12 @@ class AuthController extends Controller
         }
 
         $payload = $response->json();
-        $allowedClients = array_filter([
-            config('services.google.client_id'),
-            config('services.google.firebase_client_id'),
-        ]);
+        $projectNumber = '394540692942';
 
-        // Ensure the token was issued for our app
-        $tokenAudiences = array_filter([$payload['aud'] ?? '', $payload['azp'] ?? '']);
-        if (!array_intersect($allowedClients, $tokenAudiences)) {
-            return response()->json([
-                'message' => 'Token audience mismatch.',
-                'debug' => [
-                    'aud' => $payload['aud'] ?? null,
-                    'azp' => $payload['azp'] ?? null,
-                    'allowed' => $allowedClients,
-                ]
-            ], 401);
+        // Ensure the token belongs to our Google project
+        $aud = $payload['aud'] ?? '';
+        if (!str_starts_with($aud, $projectNumber . '-')) {
+            return response()->json(['message' => 'Token not issued for this project.'], 401);
         }
 
         $email = $payload['email'] ?? null;
