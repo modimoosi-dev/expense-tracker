@@ -35,14 +35,16 @@ window.formatCurrency = function(amount, currency = null) {
     }).format(amount || 0);
 };
 
-// Fetch and store user currency on app load
-fetch('/api/v1/settings?user_id=1')
+// Fetch and store user currency on app load (always re-fetch to avoid stale cache)
+fetch('/api/v1/settings')
     .then(r => r.json())
     .then(data => {
         localStorage.setItem('userCurrency', data.currency || 'BWP');
     })
     .catch(() => {
-        localStorage.setItem('userCurrency', 'BWP');
+        if (!localStorage.getItem('userCurrency')) {
+            localStorage.setItem('userCurrency', 'BWP');
+        }
     });
 
 // Register service worker for PWA / offline support
