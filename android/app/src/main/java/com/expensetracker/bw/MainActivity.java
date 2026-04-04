@@ -7,7 +7,6 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        registerPlugin(SmsPlugin.class);
         super.onCreate(savedInstanceState);
 
         // Remove the "wv" WebView marker from the User-Agent.

@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
 
 export default function expensesData() {
@@ -13,8 +13,6 @@ export default function expensesData() {
         voiceHint: '',
         showSmsModal: false,
         smsText: '',
-        smsList: [],
-        smsLoading: false,
         smsPreview: null,
         smsError: '',
         filters: {
@@ -186,33 +184,22 @@ export default function expensesData() {
             this.voiceHint = msg;
             if (duration > 0) setTimeout(() => this.voiceHint = '', duration);
         },
-        async openSmsModal() {
+        openSmsModal() {
             this.showSmsModal = true;
             this.smsText = '';
-            this.smsList = [];
             this.smsPreview = null;
             this.smsError = '';
-
-            if (this.isNative) {
-                this.smsLoading = true;
-                try {
-                    const SmsPlugin = window.Capacitor?.Plugins?.SmsPlugin;
-                    if (!SmsPlugin) throw new Error('SmsPlugin not available');
-                    const result = await SmsPlugin.getSmsInbox({ limit: 150 });
-                    this.smsList = result.messages || [];
-                    if (this.smsList.length === 0) {
-                        this.smsError = 'No financial SMS found in your inbox.';
-                    }
-                } catch (err) {
-                    this.smsError = err.message || 'Could not read SMS inbox.';
-                } finally {
-                    this.smsLoading = false;
-                }
-            }
         },
-        async selectSms(body) {
-            this.smsText = body;
-            await this.previewSms();
+        async pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    this.smsText = text;
+                    await this.previewSms();
+                }
+            } catch {
+                this.smsError = 'Could not read clipboard. Paste manually below.';
+            }
         },
         async previewSms() {
             this.smsError = '';

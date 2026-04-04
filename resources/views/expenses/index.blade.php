@@ -161,78 +161,41 @@
          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900 bg-opacity-50"
          style="display: none;">
         <div @click.away="showSmsModal = false"
-             class="w-full max-w-lg bg-white rounded-lg shadow-xl flex flex-col"
-             style="max-height: 85vh;">
-            <!-- Header -->
+             class="w-full max-w-lg bg-white rounded-xl shadow-xl">
             <div class="p-5 border-b border-gray-100">
-                <h2 class="text-xl font-bold text-gray-800">Import from SMS</h2>
-                <p class="mt-1 text-sm text-gray-500" x-text="isNative ? 'Tap a transaction SMS to import it.' : 'Paste an SMS notification below.'"></p>
+                <h2 class="text-lg font-bold text-gray-800">Import from SMS</h2>
+                <p class="mt-1 text-sm text-gray-500">Copy a transaction SMS from your messages app, then paste it below.</p>
             </div>
 
-            <!-- Native: SMS list picker -->
-            <template x-if="isNative">
-                <div class="flex-1 overflow-y-auto">
-                    <!-- Loading -->
-                    <div x-show="smsLoading" class="p-6 text-center text-gray-500 text-sm">
-                        <svg class="animate-spin mx-auto mb-2 w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                        </svg>
-                        Reading SMS inbox…
-                    </div>
+            <div class="p-5">
+                <!-- Clipboard button (on native especially) -->
+                <button type="button" @click="pasteFromClipboard()"
+                        class="w-full mb-3 flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-50 text-indigo-700 font-medium text-sm rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-100">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    Paste from Clipboard
+                </button>
 
-                    <!-- SMS list -->
-                    <div x-show="!smsLoading && smsList.length > 0 && !smsPreview" class="divide-y divide-gray-100">
-                        <template x-for="msg in smsList" :key="msg.id">
-                            <button type="button" @click="selectSms(msg.body)"
-                                    class="w-full text-left px-4 py-3 hover:bg-green-50 active:bg-green-100 transition-colors">
-                                <p class="text-xs text-gray-400 mb-1" x-text="new Date(msg.date).toLocaleString()"></p>
-                                <p class="text-sm text-gray-800 font-medium" x-text="msg.address"></p>
-                                <p class="text-xs text-gray-600 mt-0.5 line-clamp-2" x-text="msg.body"></p>
-                            </button>
-                        </template>
-                    </div>
+                <textarea x-model="smsText" rows="4" placeholder="Or paste SMS text here manually…"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm font-mono resize-none"></textarea>
 
-                    <!-- Preview (after selecting) -->
-                    <div x-show="smsPreview && !smsLoading" class="p-4">
-                        <p class="text-xs text-gray-500 font-mono bg-gray-50 rounded p-2 mb-3 line-clamp-3" x-text="smsText"></p>
-                        <div class="p-3 bg-green-50 border border-green-200 rounded-lg text-sm">
-                            <p class="font-semibold text-green-800 mb-1">Parsed successfully:</p>
-                            <p x-text="`${smsPreview?.type?.toUpperCase()} · ${smsPreview?.category} · P${smsPreview?.amount}`" class="text-green-700"></p>
-                            <p x-text="smsPreview?.description" class="text-green-600 text-xs mt-1"></p>
-                        </div>
-                        <button type="button" @click="smsPreview = null; smsText = ''"
-                                class="mt-3 text-xs text-blue-600 hover:underline">← Pick a different SMS</button>
-                    </div>
+                <div x-show="smsPreview" class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg text-sm">
+                    <p class="font-semibold text-green-800 mb-1">Parsed successfully</p>
+                    <p x-text="`${smsPreview?.type?.toUpperCase()} · ${smsPreview?.category} · ${smsPreview?.amount}`" class="text-green-700"></p>
+                    <p x-text="smsPreview?.description" class="text-green-600 text-xs mt-1"></p>
                 </div>
-            </template>
 
-            <!-- Web: paste textarea -->
-            <template x-if="!isNative">
-                <div class="p-5 flex-1">
-                    <textarea x-model="smsText" rows="5" placeholder="Paste SMS here…"
-                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm font-mono"></textarea>
-                    <div x-show="smsPreview" class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg text-sm">
-                        <p class="font-semibold text-green-800 mb-1">Parsed successfully:</p>
-                        <p x-text="`${smsPreview?.type?.toUpperCase()} · ${smsPreview?.category} · P${smsPreview?.amount}`" class="text-green-700"></p>
-                        <p x-text="smsPreview?.description" class="text-green-600 text-xs mt-1"></p>
-                    </div>
-                </div>
-            </template>
+                <div x-show="smsError" class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700" x-text="smsError"></div>
+            </div>
 
-            <!-- Error -->
-            <div x-show="smsError" class="mx-5 mb-2 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700" x-text="smsError"></div>
-
-            <!-- Footer -->
-            <div class="p-4 border-t border-gray-100 flex justify-end gap-3">
+            <div class="px-5 pb-5 flex justify-end gap-3">
                 <button type="button" @click="showSmsModal = false"
-                        class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Cancel</button>
-                <template x-if="!isNative">
-                    <button type="button" @click="previewSms()"
-                            class="px-4 py-2 text-white bg-gray-600 rounded-lg hover:bg-gray-700">Preview</button>
-                </template>
+                        class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 text-sm">Cancel</button>
+                <button type="button" @click="previewSms()" :disabled="!smsText.trim()"
+                        class="px-4 py-2 text-white bg-gray-600 rounded-lg hover:bg-gray-700 disabled:opacity-40 text-sm">Preview</button>
                 <button type="button" @click="importSms()" :disabled="!smsPreview"
-                        class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50">Import</button>
+                        class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-40 text-sm">Import</button>
             </div>
         </div>
     </div>
