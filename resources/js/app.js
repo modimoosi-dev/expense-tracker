@@ -3,6 +3,7 @@ import Alpine from 'alpinejs';
 import { db } from './firebase';
 import { Browser } from '@capacitor/browser';
 import { App as CapApp } from '@capacitor/app';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import categoriesData from './components/categories';
 import expensesData from './components/expenses';
 import budgetsData from './components/budgets';
@@ -67,7 +68,6 @@ window.handleGoogleLogin = async function(googleUrl) {
     if (window.Capacitor) {
         try {
             // Native Google Sign-In — shows account picker, no browser
-            const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
             const result = await FirebaseAuthentication.signInWithGoogle();
             const idToken = result.credential?.idToken;
             if (!idToken) throw new Error('No ID token');
