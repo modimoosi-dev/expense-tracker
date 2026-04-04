@@ -25,11 +25,20 @@
             <!-- SMS import button -->
             <button @click="openSmsModal()"
                     class="px-3 py-2 text-white transition-colors bg-green-600 hover:bg-green-700 rounded-lg flex items-center gap-2 text-sm"
-                    title="Copy an Orange Money or MyZaka SMS and paste it here">
+                    title="Import from SMS">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
                 </svg>
                 Import SMS
+            </button>
+            <!-- Bank statement import button -->
+            <button @click="openStatementModal()"
+                    class="px-3 py-2 text-white transition-colors bg-orange-500 hover:bg-orange-600 rounded-lg flex items-center gap-2 text-sm"
+                    title="Import from bank statement CSV">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Import Statement
             </button>
             <button @click="openModal()" class="px-3 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,6 +205,116 @@
                         class="px-4 py-2 text-white bg-gray-600 rounded-lg hover:bg-gray-700 disabled:opacity-40 text-sm">Preview</button>
                 <button type="button" @click="importSms()" :disabled="!smsPreview"
                         class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-40 text-sm">Import</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bank Statement Import Modal -->
+    <div x-show="showStatementModal"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900 bg-opacity-50"
+         style="display: none;">
+        <div @click.away="showStatementModal = false"
+             class="w-full max-w-2xl bg-white rounded-xl shadow-xl flex flex-col"
+             style="max-height: 90vh;">
+
+            <!-- Header -->
+            <div class="p-5 border-b border-gray-100">
+                <h2 class="text-lg font-bold text-gray-800">Import Bank Statement</h2>
+                <p class="mt-1 text-sm text-gray-500">Upload a CSV file exported from your bank. Supports FNB, Absa, Standard Chartered, Stanbic and most banks.</p>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-5">
+                <!-- File upload -->
+                <div x-show="statementRows.length === 0 && !statementLoading">
+                    <label class="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-orange-300 rounded-xl cursor-pointer bg-orange-50 hover:bg-orange-100 transition-colors">
+                        <svg class="w-8 h-8 text-orange-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        <p class="text-sm font-semibold text-orange-600">Tap to upload CSV</p>
+                        <p class="text-xs text-orange-400 mt-1">Export from your bank's internet banking</p>
+                        <input type="file" accept=".csv,.txt" class="hidden" @change="uploadStatement($event)">
+                    </label>
+                    <div class="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-500 space-y-1">
+                        <p class="font-semibold text-gray-600 mb-1">How to export:</p>
+                        <p>• <strong>FNB:</strong> Online Banking → Accounts → Statement → Download → CSV</p>
+                        <p>• <strong>Absa:</strong> Online Banking → Accounts → Download Statement → CSV</p>
+                        <p>• <strong>Standard Chartered:</strong> Online Banking → Accounts → Export → CSV</p>
+                        <p>• <strong>Stanbic:</strong> Online Banking → Statements → Export</p>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div x-show="statementLoading" class="py-12 text-center text-gray-500 text-sm">
+                    <svg class="animate-spin mx-auto mb-3 w-8 h-8 text-orange-500" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    Parsing statement…
+                </div>
+
+                <!-- Error -->
+                <div x-show="statementError" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700" x-text="statementError"></div>
+
+                <!-- Transaction preview table -->
+                <div x-show="statementRows.length > 0">
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-sm font-semibold text-gray-700">
+                            <span x-text="statementSelected.length"></span> of <span x-text="statementRows.length"></span> transactions selected
+                        </p>
+                        <div class="flex gap-2">
+                            <button type="button" @click="selectAllStatement()" class="text-xs text-indigo-600 hover:underline">All</button>
+                            <span class="text-gray-300">|</span>
+                            <button type="button" @click="deselectAllStatement()" class="text-xs text-gray-500 hover:underline">None</button>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <template x-for="(row, idx) in statementRows" :key="idx">
+                            <label class="flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors"
+                                   :class="statementSelected.includes(idx) ? 'border-orange-300 bg-orange-50' : 'border-gray-100 bg-white hover:bg-gray-50'">
+                                <input type="checkbox" class="mt-0.5 shrink-0 accent-orange-500"
+                                       :checked="statementSelected.includes(idx)"
+                                       @change="toggleStatementRow(idx)">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <p class="text-sm font-medium text-gray-800 truncate" x-text="row.description"></p>
+                                        <span class="text-sm font-bold shrink-0"
+                                              :class="row.type === 'income' ? 'text-green-600' : 'text-red-500'"
+                                              x-text="(row.type === 'income' ? '+' : '-') + formatCurrency(row.amount)"></span>
+                                    </div>
+                                    <div class="flex items-center gap-3 mt-0.5">
+                                        <span class="text-xs text-gray-400" x-text="row.date"></span>
+                                        <span class="text-xs px-1.5 py-0.5 rounded-full font-medium"
+                                              :class="row.type === 'income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'"
+                                              x-text="row.type"></span>
+                                    </div>
+                                </div>
+                            </label>
+                        </template>
+                    </div>
+                    <!-- Upload different file -->
+                    <label class="mt-4 flex items-center gap-2 text-xs text-indigo-600 hover:underline cursor-pointer w-fit">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                        </svg>
+                        Upload a different file
+                        <input type="file" accept=".csv,.txt" class="hidden" @change="uploadStatement($event)">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-4 border-t border-gray-100 flex justify-end gap-3">
+                <button type="button" @click="showStatementModal = false"
+                        class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 text-sm">Cancel</button>
+                <button type="button" @click="importStatement()"
+                        :disabled="statementSelected.length === 0 || statementImporting"
+                        class="px-4 py-2 text-white bg-orange-500 rounded-lg hover:bg-orange-600 disabled:opacity-40 text-sm flex items-center gap-2">
+                    <svg x-show="statementImporting" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span x-text="statementImporting ? 'Importing…' : `Import ${statementSelected.length} transactions`"></span>
+                </button>
             </div>
         </div>
     </div>

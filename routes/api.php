@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\FirebaseTokenController;
 use App\Http\Controllers\CategoryController;
@@ -9,9 +10,14 @@ use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SmsImportController;
+use App\Http\Controllers\StatementController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('api.')->group(function () {
+    // OAuth polling endpoint (no auth middleware — used before login)
+    Route::get('auth/poll', [AuthController::class, 'pollAuthStatus'])->name('auth.poll');
+
+
     // Category routes
     Route::apiResource('categories', CategoryController::class);
 
@@ -47,6 +53,9 @@ Route::prefix('v1')->name('api.')->group(function () {
     // SMS import routes
     Route::post('sms/preview', [SmsImportController::class, 'preview'])->name('sms.preview');
     Route::post('sms/import', [SmsImportController::class, 'parse'])->name('sms.import');
+
+    // Bank statement import
+    Route::post('statement/preview', [StatementController::class, 'preview'])->name('statement.preview');
 
     // Reports routes
     Route::get('reports/monthly-trends', [ReportsController::class, 'getMonthlyTrends'])->name('reports.monthly');

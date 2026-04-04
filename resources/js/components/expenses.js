@@ -15,6 +15,12 @@ export default function expensesData() {
         smsText: '',
         smsPreview: null,
         smsError: '',
+        showStatementModal: false,
+        statementRows: [],
+        statementSelected: [],
+        statementError: '',
+        statementLoading: false,
+        statementImporting: false,
         filters: {
             type: '',
             category_id: '',
@@ -231,6 +237,82 @@ export default function expensesData() {
             } catch (err) {
                 this.smsError = 'Failed to save to Firestore.';
             }
-        }
+        },
+
+        // ── Bank Statement Import ──────────────────────────────────────────
+        openStatementModal() {
+            this.showStatementModal = true;
+            this.statementRows = [];
+            this.statementSelected = [];
+            this.statementError = '';
+            this.statementLoading = false;
+            this.statementImporting = false;
+        },
+        async uploadStatement(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            this.statementLoading = true;
+            this.statementError = '';
+            this.statementRows = [];
+            this.statementSelected = [];
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                const resp = await fetch('/api/v1/statement/preview', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body: formData,
+                });
+                const data = await resp.json();
+                if (resp.ok) {
+                    this.statementRows = data.transactions;
+                    this.statementSelected = data.transactions.map((_, i) => i);
+                } else {
+                    this.statementError = data.error || 'Failed to parse file.';
+                }
+            } catch {
+                this.statementError = 'Network error uploading file.';
+            } finally {
+                this.statementLoading = false;
+                event.target.value = '';
+            }
+        },
+        toggleStatementRow(idx) {
+            const pos = this.statementSelected.indexOf(idx);
+            if (pos === -1) this.statementSelected.push(idx);
+            else this.statementSelected.splice(pos, 1);
+        },
+        selectAllStatement() {
+            this.statementSelected = this.statementRows.map((_, i) => i);
+        },
+        deselectAllStatement() {
+            this.statementSelected = [];
+        },
+        async importStatement() {
+            if (this.statementSelected.length === 0) return;
+            this.statementImporting = true;
+            try {
+                const toImport = this.statementSelected.map(i => this.statementRows[i]);
+                const promises = toImport.map(row => addDoc(collection(db, 'expenses'), {
+                    user_id: 1,
+                    category_id: '',
+                    amount: row.amount,
+                    type: row.type,
+                    description: row.description,
+                    date: row.date,
+                    payment_method: 'Bank Transfer',
+                    reference: '',
+                }));
+                await Promise.all(promises);
+                this.showStatementModal = false;
+                await this.fetchExpenses();
+                this.showVoiceHint(`${toImport.length} transactions imported!`, 3000);
+            } catch {
+                this.statementError = 'Failed to save transactions.';
+            } finally {
+                this.statementImporting = false;
+            }
+        },
     }
 }
