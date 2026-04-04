@@ -58,11 +58,3 @@ Alpine.data('budgetsData', budgetsData);
 Alpine.data('dashboardData', dashboardData);
 Alpine.start();
 
-// Hide Capacitor splash screen once the page is fully loaded
-if (window.Capacitor) {
-    import('@capacitor/splash-screen').then(({ SplashScreen }) => {
-        window.addEventListener('load', () => {
-            setTimeout(() => SplashScreen.hide(), 300);
-        });
-    }).catch(() => {});
-}

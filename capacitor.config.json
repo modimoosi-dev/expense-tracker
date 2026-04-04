@@ -3,7 +3,8 @@
   "appName": "Expense Tracker",
   "webDir": "public",
   "server": {
-    "url": "https://expense-tracker-1-0mg2.onrender.com"
+    "url": "https://expense-tracker-1-0mg2.onrender.com",
+    "allowNavigation": ["expense-tracker-1-0mg2.onrender.com"]
   },
   "plugins": {
     "PushNotifications": {
@@ -19,8 +20,8 @@
       "sound": "beep.wav"
     },
     "SplashScreen": {
-      "launchShowDuration": 0,
-      "launchAutoHide": false,
+      "launchShowDuration": 3000,
+      "launchAutoHide": true,
       "backgroundColor": "#4f46e5",
       "androidSpinnerStyle": "large",
       "spinnerColor": "#ffffff",
@@ -28,8 +29,8 @@
     }
   },
   "android": {
-    "allowMixedContent": true,
+    "allowMixedContent": false,
     "captureInput": true,
-    "webContentsDebuggingEnabled": true
+    "webContentsDebuggingEnabled": false
   }
 }
