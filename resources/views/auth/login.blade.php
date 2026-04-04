@@ -127,9 +127,6 @@
 
     <script>
     async function handleGoogleSignIn(e) {
-        // DEBUG: remove after confirming code path
-        alert('handleGoogleSignIn called. isNative=' + (window.Capacitor?.isNativePlatform() ?? 'no Capacitor'));
-
         // Only intercept on native Capacitor — web falls through to href
         if (!window.Capacitor || !window.Capacitor.isNativePlatform()) return;
 
