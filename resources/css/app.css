@@ -71,10 +71,13 @@
 .dark .via-gray-50    { --tw-gradient-via:  rgb(31 41 55 / 0.6); }
 .dark .to-gray-50     { --tw-gradient-to:   rgb(31 41 55 / 0.6); }
 
-/* Protect white elements inside colored gradient containers */
-.dark [class*="from-indigo-6"] .bg-white,
-.dark [class*="from-indigo-5"] .bg-white,
-.dark [class*="from-purple-6"] .bg-white { background-color: rgb(255 255 255); }
+/* Protect white elements inside saturated gradient containers (500/600/700) */
+.dark [class*="from-indigo-500"] .bg-white,
+.dark [class*="from-indigo-600"] .bg-white,
+.dark [class*="from-indigo-700"] .bg-white,
+.dark [class*="from-purple-500"] .bg-white,
+.dark [class*="from-purple-600"] .bg-white,
+.dark [class*="from-purple-700"] .bg-white { background-color: rgb(255 255 255); }
 
 /* Modern glassmorphism effect */
 .glass {
