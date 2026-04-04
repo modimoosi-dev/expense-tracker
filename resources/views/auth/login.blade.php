@@ -44,14 +44,12 @@
                 <p class="text-gray-500 text-sm mt-1">Sign in to your account</p>
             </div>
 
-            <form method="POST" action="{{ route('login') }}" class="px-6 pb-6 pt-4 space-y-4">
+            <form id="login-form" class="px-6 pb-6 pt-4 space-y-4" onsubmit="handleLogin(event)">
                 @csrf
 
-                @if ($errors->any())
-                    <div class="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                        <p class="text-red-600 text-sm">{{ $errors->first() }}</p>
-                    </div>
-                @endif
+                <div id="login-error" class="hidden bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                    <p class="text-red-600 text-sm" id="login-error-msg"></p>
+                </div>
 
                 <!-- Email -->
                 <div>
@@ -90,7 +88,7 @@
                 </div>
 
                 <!-- Submit -->
-                <button type="submit"
+                <button type="submit" id="login-btn"
                         class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/30 active:scale-95 transition-transform">
                     Sign In
                 </button>
@@ -125,5 +123,49 @@
         <p class="mt-6 text-indigo-200 text-xs">&copy; {{ date('Y') }} Expense Tracker</p>
     </div>
 
+    <script>
+    async function handleLogin(e) {
+        e.preventDefault();
+        const btn = document.getElementById('login-btn');
+        const errBox = document.getElementById('login-error');
+        const errMsg = document.getElementById('login-error-msg');
+        const form = document.getElementById('login-form');
+
+        btn.disabled = true;
+        btn.textContent = 'Signing in…';
+        errBox.classList.add('hidden');
+
+        try {
+            const res = await fetch('{{ route('login') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: form.email.value,
+                    password: form.password.value,
+                    remember: form.remember?.checked || false,
+                }),
+            });
+
+            if (res.ok || res.redirected) {
+                window.location.href = '/dashboard';
+            } else {
+                const data = await res.json().catch(() => ({}));
+                errMsg.textContent = data.message || 'Invalid email or password.';
+                errBox.classList.remove('hidden');
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            }
+        } catch (err) {
+            errMsg.textContent = 'Connection error. Please try again.';
+            errBox.classList.remove('hidden');
+            btn.disabled = false;
+            btn.textContent = 'Sign In';
+        }
+    }
+    </script>
 </body>
 </html>

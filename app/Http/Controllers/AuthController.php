@@ -36,7 +36,15 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+
+            if ($request->expectsJson()) {
+                return response()->json(['redirect' => route('dashboard')]);
+            }
             return redirect()->intended(route('dashboard'));
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Invalid email or password.'], 422);
         }
 
         return back()->withErrors([
