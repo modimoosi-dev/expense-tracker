@@ -64,7 +64,7 @@ class AuthController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'currency' => 'USD',
+            'currency' => 'BWP',
         ]);
 
         Auth::login($user);

@@ -28,7 +28,7 @@ window.fetchWithCsrf = function(url, options = {}) {
 
 // Global currency formatter
 window.formatCurrency = function(amount, currency = null) {
-    const userCurrency = currency || localStorage.getItem('userCurrency') || 'USD';
+    const userCurrency = currency || localStorage.getItem('userCurrency') || 'BWP';
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: userCurrency
