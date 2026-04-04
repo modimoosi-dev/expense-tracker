@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="google-client-id" content="{{ config('services.google.client_id') }}">
     <meta name="theme-color" content="#4f46e5">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Login - Expense Tracker</title>
@@ -142,7 +143,8 @@
             const FirebaseAuthentication = window.Capacitor?.Plugins?.FirebaseAuthentication;
             if (!FirebaseAuthentication) throw new Error('FirebaseAuthentication plugin not available');
 
-            const result = await FirebaseAuthentication.signInWithGoogle();
+            const webClientId = document.querySelector('meta[name="google-client-id"]')?.content;
+            const result = await FirebaseAuthentication.signInWithGoogle({ webClientId });
             const idToken = result.credential?.idToken;
 
             if (!idToken) throw new Error('No ID token returned');
