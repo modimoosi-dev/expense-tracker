@@ -149,13 +149,13 @@
 
             if (!idToken) throw new Error('No ID token returned');
 
-            const res = await fetch('/auth/google/native', {
+            const res = await fetch('/auth/google/gis', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 },
-                body: JSON.stringify({ id_token: idToken }),
+                body: JSON.stringify({ credential: idToken }),
             });
 
             if (res.ok) {
