@@ -40,6 +40,8 @@ services:
         value: database
       - key: QUEUE_CONNECTION
         value: database
+      - key: FIREBASE_CREDENTIALS
+        value: /etc/secrets/firebase-service-account.json
 
 databases:
   - name: expense-tracker-db

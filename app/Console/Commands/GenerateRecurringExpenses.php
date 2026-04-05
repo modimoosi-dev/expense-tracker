@@ -2,43 +2,52 @@
 
 namespace App\Console\Commands;
 
+use App\Models\RecurringExpense;
 use Illuminate\Console\Command;
+use Kreait\Firebase\Contract\Firestore;
 
 class GenerateRecurringExpenses extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'recurring:generate';
+    protected $description = 'Generate expenses from recurring expense templates into Firestore';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Generate expenses from recurring expense templates';
-
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    public function handle(Firestore $firestore)
     {
-        $recurringExpenses = \App\Models\RecurringExpense::dueForGeneration()->get();
-
+        $db = $firestore->database();
+        $recurringExpenses = RecurringExpense::dueForGeneration()->get();
         $generated = 0;
 
         foreach ($recurringExpenses as $recurring) {
-            if ($recurring->shouldGenerate()) {
-                $recurring->generateExpense();
-                $generated++;
-                $this->info("Generated expense from recurring template: {$recurring->description}");
+            if (!$recurring->shouldGenerate()) {
+                continue;
             }
+
+            // Respect days_of_week if set
+            if (!empty($recurring->days_of_week)) {
+                $todayDow = (int) now()->format('w'); // 0=Sun, 6=Sat
+                if (!in_array($todayDow, $recurring->days_of_week)) {
+                    $this->line("Skipping '{$recurring->description}' — not an active day.");
+                    continue;
+                }
+            }
+
+            $db->collection('expenses')->add([
+                'user_id'        => $recurring->user_id,
+                'category_id'    => $recurring->category_id ?? '',
+                'amount'         => (float) $recurring->amount,
+                'type'           => $recurring->type,
+                'description'    => ($recurring->description ?? '') . ' (Auto-generated)',
+                'date'           => now()->toDateString(),
+                'payment_method' => $recurring->payment_method ?? '',
+                'created_at'     => now()->toDateTimeString(),
+            ]);
+
+            $recurring->update(['last_generated' => now()]);
+            $generated++;
+            $this->info("Generated: {$recurring->description}");
         }
 
-        $this->info("Total expenses generated: {$generated}");
-
+        $this->info("Total generated: {$generated}");
         return 0;
     }
 }
