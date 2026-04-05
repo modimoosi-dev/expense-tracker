@@ -256,7 +256,7 @@ function settingsData() {
                 }
             } catch (error) {
                 console.error('Error saving settings:', error);
-                alert('Failed to save settings');
+                window.showAlert?.('Save Failed', 'Could not save settings. Please try again.', 'error');
             } finally {
                 this.saving = false;
             }
@@ -276,13 +276,13 @@ function settingsData() {
 
             // Validate file size (2MB max)
             if (file.size > 2 * 1024 * 1024) {
-                alert('File size must be less than 2MB');
+                window.showAlert?.('File Too Large', 'Profile picture must be less than 2MB.', 'warning');
                 return;
             }
 
             // Validate file type
             if (!file.type.startsWith('image/')) {
-                alert('Please upload an image file');
+                window.showAlert?.('Invalid File', 'Please upload an image file (JPG, PNG, etc).', 'warning');
                 return;
             }
 
@@ -314,15 +314,15 @@ function settingsData() {
                         this.showSuccess = false;
                     }, 3000);
                 } else {
-                    alert('Failed to upload profile picture');
+                    window.showAlert?.('Upload Failed', 'Could not upload profile picture. Please try again.', 'error');
                 }
             } catch (error) {
                 console.error('Error uploading profile picture:', error);
-                alert('Failed to upload profile picture');
+                window.showAlert?.('Upload Failed', 'Could not upload profile picture. Please try again.', 'error');
             }
         },
         async deleteProfilePicture() {
-            if (!confirm('Are you sure you want to remove your profile picture?')) return;
+            if (!await window.confirmAction('Remove Photo', 'Are you sure you want to remove your profile picture?', 'Remove')) return;
 
             try {
                 const response = await window.fetchWithCsrf('/api/v1/settings/profile-picture?user_id={{ auth()->id() ?? 1 }}', {
@@ -343,11 +343,11 @@ function settingsData() {
                         this.showSuccess = false;
                     }, 3000);
                 } else {
-                    alert('Failed to remove profile picture');
+                    window.showAlert?.('Failed', 'Could not remove profile picture. Please try again.', 'error');
                 }
             } catch (error) {
                 console.error('Error deleting profile picture:', error);
-                alert('Failed to remove profile picture');
+                window.showAlert?.('Failed', 'Could not remove profile picture. Please try again.', 'error');
             }
         }
     }

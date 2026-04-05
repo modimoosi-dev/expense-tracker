@@ -191,7 +191,7 @@ export default function expensesData() {
                 this.closeModal();
             } catch (error) {
                 console.error('Error saving expense:', error);
-                alert('Error processing transaction');
+                window.showAlert?.('Error', 'Could not process transaction. Please try again.', 'error');
             }
         },
         async deleteExpense(id) {
@@ -213,7 +213,7 @@ export default function expensesData() {
         },
         startVoiceInput() {
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SR) { alert('Voice not supported.'); return; }
+            if (!SR) { window.showAlert?.('Not Supported', 'Voice input is not supported on this device.', 'warning'); return; }
             if (this.listening) return;
             this.listening = true;
             this.showVoiceHint('Say: "Add expense, lunch, P85"');

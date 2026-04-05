@@ -252,11 +252,11 @@ function recurringData() {
                 } else {
                     const error = await response.text();
                     console.error('Error response:', error);
-                    alert('Failed to save recurring transaction. Check console for details.');
+                    await window.showAlert('Save Failed', 'Could not save recurring transaction. Please try again.', 'error');
                 }
             } catch (error) {
                 console.error('Error saving recurring:', error);
-                alert('Failed to save recurring transaction.');
+                await window.showAlert('Save Failed', 'Could not save recurring transaction.', 'error');
             }
         },
         editRecurring(item) {
@@ -264,7 +264,7 @@ function recurringData() {
             this.showForm = true;
         },
         async deleteRecurring(id) {
-            if (!confirm('Are you sure you want to delete this recurring transaction?')) return;
+            if (!await window.confirmDelete('this recurring transaction')) return;
 
             try {
                 const response = await window.fetchWithCsrf(`/api/v1/recurring-expenses/${id}`, {
@@ -290,7 +290,7 @@ function recurringData() {
             }
         },
         async generateNow(item) {
-            if (!confirm('Generate an expense from this recurring transaction now?')) return;
+            if (!await window.confirmAction('Generate Now', `Add today's ${item.description || item.type} entry now?`, 'Generate')) return;
 
             try {
                 const today = new Date().toISOString().split('T')[0];
@@ -304,11 +304,11 @@ function recurringData() {
                 });
                 // Also update last_generated on the server
                 await window.fetchWithCsrf(`/api/v1/recurring-expenses/${item.id}/generate`, { method: 'POST' });
-                alert('Expense generated successfully!');
+                await window.showAlert('Done', 'Expense generated successfully!', 'success');
                 await this.fetchRecurring();
             } catch (error) {
                 console.error('Error generating expense:', error);
-                alert('Failed to generate expense.');
+                await window.showAlert('Failed', 'Could not generate expense. Try again.', 'error');
             }
         },
         toggleDay(idx) {

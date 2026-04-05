@@ -85,7 +85,7 @@ export default function categoriesData() {
                 this.closeModal();
             } catch (error) {
                 console.error('Firestore error:', error);
-                alert('Failed to save: ' + (error.code || error.message));
+                window.showAlert?.('Save Failed', error.code || error.message, 'error');
             }
         },
         async deleteCategory(id) {
