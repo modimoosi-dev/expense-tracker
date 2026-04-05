@@ -194,11 +194,7 @@ function recurringData() {
         },
         async fetchCategories() {
             try {
-                const response = await fetch('/api/v1/categories?user_id={{ auth()->id() }}');
-                if (response.ok) {
-                    const data = await response.json();
-                    this.categories = data.data || data;
-                }
+                this.categories = await window.getUserCategories();
             } catch (error) {
                 console.error('Error fetching categories:', error);
             }

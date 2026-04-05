@@ -220,15 +220,61 @@
                     <span class="text-xs font-medium">Transactions</span>
                 </a>
 
-                <!-- FAB: Quick Add -->
-                <a href="{{ route('expenses.index') }}?type=expense"
-                   class="flex flex-col items-center justify-center flex-1 h-full">
-                    <div class="w-14 h-14 -mt-6 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-indigo-500/40 active:scale-95 transition-transform">
-                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- FAB: Quick Add with popup -->
+                <div class="flex flex-col items-center justify-center flex-1 h-full relative" x-data="{ fabOpen: false }">
+                    <!-- Backdrop -->
+                    <div x-show="fabOpen" @click="fabOpen = false"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0"
+                         x-transition:enter-end="opacity-100"
+                         x-transition:leave="transition ease-in duration-100"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0"
+                         class="fixed inset-0 z-40 bg-black/30"
+                         style="display:none"></div>
+
+                    <!-- FAB options -->
+                    <div x-show="fabOpen"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 translate-y-2"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 translate-y-2"
+                         class="absolute bottom-20 z-50 flex flex-col items-center gap-3"
+                         style="display:none">
+                        <a href="{{ route('recurring.index') }}"
+                           class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-lg border border-gray-100 whitespace-nowrap">
+                            <span class="w-7 h-7 bg-gradient-to-br from-purple-500 to-violet-600 rounded-full flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            </span>
+                            <span class="text-sm font-semibold text-gray-700">Add Recurring</span>
+                        </a>
+                        <a href="{{ route('expenses.index') }}?type=income"
+                           class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-lg border border-gray-100 whitespace-nowrap">
+                            <span class="w-7 h-7 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            </span>
+                            <span class="text-sm font-semibold text-gray-700">Add Income</span>
+                        </a>
+                        <a href="{{ route('expenses.index') }}?type=expense"
+                           class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-lg border border-gray-100 whitespace-nowrap">
+                            <span class="w-7 h-7 bg-gradient-to-br from-red-500 to-pink-600 rounded-full flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                            </span>
+                            <span class="text-sm font-semibold text-gray-700">Add Expense</span>
+                        </a>
+                    </div>
+
+                    <!-- FAB button -->
+                    <button @click="fabOpen = !fabOpen"
+                            class="w-14 h-14 -mt-6 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-indigo-500/40 active:scale-95 transition-all z-50 relative">
+                        <svg class="w-7 h-7 text-white transition-transform duration-200" :class="fabOpen ? 'rotate-45' : ''"
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
-                    </div>
-                </a>
+                    </button>
+                </div>
 
                 <!-- Budgets -->
                 <a href="{{ route('budgets.index') }}"

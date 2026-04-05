@@ -1,6 +1,7 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
 import { db } from './firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import categoriesData from './components/categories';
 import expensesData from './components/expenses';
 import budgetsData from './components/budgets';
@@ -50,6 +51,15 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
     });
 }
+
+// Global helper — fetch current user's categories from Firestore
+window.getUserCategories = async function(type = null) {
+    const uid = window.currentUserId;
+    let q = query(collection(db, 'categories'), where('user_id', '==', uid));
+    if (type) q = query(collection(db, 'categories'), where('user_id', '==', uid), where('type', '==', type));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+};
 
 Alpine.data('categoriesData', categoriesData);
 Alpine.data('expensesData', expensesData);
