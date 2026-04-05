@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 
 export default function budgetsData() {
@@ -9,7 +9,7 @@ export default function budgetsData() {
         showModal: false,
         editingBudget: null,
         form: {
-            user_id: 1,
+            user_id: window.currentUserId,
             category_id: '',
             name: '',
             amount: '',
@@ -32,7 +32,8 @@ export default function budgetsData() {
         },
         async fetchExpenses() {
             try {
-                const querySnapshot = await getDocs(collection(db, 'expenses'));
+                const uid = window.currentUserId;
+                const querySnapshot = await getDocs(query(collection(db, 'expenses'), where('user_id', '==', uid)));
                 this.expenses = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (error) {
                 console.error('Error fetching expenses:', error);
@@ -40,7 +41,8 @@ export default function budgetsData() {
         },
         async fetchCategories() {
             try {
-                const querySnapshot = await getDocs(collection(db, 'categories'));
+                const uid = window.currentUserId;
+                const querySnapshot = await getDocs(query(collection(db, 'categories'), where('user_id', '==', uid)));
                 this.categories = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (error) {
                 console.error('Error fetching categories:', error);
@@ -48,7 +50,8 @@ export default function budgetsData() {
         },
         async fetchBudgets() {
             try {
-                const querySnapshot = await getDocs(collection(db, 'budgets'));
+                const uid = window.currentUserId;
+                const querySnapshot = await getDocs(query(collection(db, 'budgets'), where('user_id', '==', uid)));
                 let rawBudgets = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
                 this.budgets = rawBudgets.map(budget => {
@@ -107,7 +110,7 @@ export default function budgetsData() {
             this.editingBudget = null;
             this.setDefaultDates();
             this.form = {
-                user_id: 1, category_id: '', name: '', amount: '', period: 'monthly',
+                user_id: window.currentUserId, category_id: '', name: '', amount: '', period: 'monthly',
                 start_date: this.form.start_date, end_date: this.form.end_date, is_active: true
             };
         },

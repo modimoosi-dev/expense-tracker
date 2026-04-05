@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, where } from 'firebase/firestore';
 import { db } from '../firebase';
 
 export default function expensesData() {
@@ -31,7 +31,7 @@ export default function expensesData() {
             end_date: ''
         },
         form: {
-            user_id: 1,
+            user_id: window.currentUserId,
             category_id: '',
             amount: '',
             type: 'expense',
@@ -77,8 +77,8 @@ export default function expensesData() {
         },
         async fetchExpenses() {
             try {
-                let q = collection(db, 'expenses');
-                const querySnapshot = await getDocs(query(q, orderBy('date', 'desc')));
+                const uid = window.currentUserId;
+                const querySnapshot = await getDocs(query(collection(db, 'expenses'), where('user_id', '==', uid), orderBy('date', 'desc')));
                 
                 let results = querySnapshot.docs.map(doc => ({
                     id: doc.id,
@@ -111,7 +111,8 @@ export default function expensesData() {
         },
         async fetchCategories() {
             try {
-                const querySnapshot = await getDocs(collection(db, 'categories'));
+                const uid = window.currentUserId;
+                const querySnapshot = await getDocs(query(collection(db, 'categories'), where('user_id', '==', uid)));
                 this.categories = querySnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
@@ -127,7 +128,7 @@ export default function expensesData() {
             this.showModal = true;
             this.editingExpense = null;
             this.form = {
-                user_id: 1,
+                user_id: window.currentUserId,
                 category_id: '',
                 amount: '',
                 type: 'expense',
@@ -246,7 +247,7 @@ export default function expensesData() {
             if (!this.smsPreview) return;
             try {
                 const dataToSave = {
-                    user_id: 1,
+                    user_id: window.currentUserId,
                     category_id: this.smsPreview.category_id || '',
                     amount: parseFloat(this.smsPreview.amount),
                     type: this.smsPreview.type || 'expense',
@@ -338,7 +339,7 @@ export default function expensesData() {
             try {
                 const toImport = this.statementSelected.map(i => this.statementRows[i]);
                 const promises = toImport.map(row => addDoc(collection(db, 'expenses'), {
-                    user_id: 1,
+                    user_id: window.currentUserId,
                     category_id: '',
                     amount: row.amount,
                     type: row.type,

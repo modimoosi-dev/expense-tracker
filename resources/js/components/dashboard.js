@@ -1,4 +1,4 @@
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import Chart from 'chart.js/auto';
 
@@ -21,10 +21,11 @@ export default function dashboardData() {
         },
         async fetchStatsAndDrawCharts() {
             try {
-                const catSnap = await getDocs(collection(db, 'categories'));
+                const uid = window.currentUserId;
+                const catSnap = await getDocs(query(collection(db, 'categories'), where('user_id', '==', uid)));
                 const categories = catSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                const expSnap = await getDocs(collection(db, 'expenses'));
+                const expSnap = await getDocs(query(collection(db, 'expenses'), where('user_id', '==', uid)));
                 const expenses = expSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
                 let totalInc = 0;

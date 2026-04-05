@@ -17,9 +17,10 @@ export default function categoriesData() {
         },
         async fetchCategories() {
             try {
-                let q = collection(db, 'categories');
+                const uid = window.currentUserId;
+                let q = query(collection(db, 'categories'), where('user_id', '==', uid));
                 if (this.filterType !== 'all') {
-                    q = query(q, where('type', '==', this.filterType));
+                    q = query(collection(db, 'categories'), where('user_id', '==', uid), where('type', '==', this.filterType));
                 }
                 const querySnapshot = await getDocs(q);
                 this.categories = querySnapshot.docs.map(doc => ({
@@ -47,6 +48,7 @@ export default function categoriesData() {
         async saveCategory() {
             try {
                 const dataToSave = {
+                    user_id: window.currentUserId,
                     name: this.form.name,
                     type: this.form.type,
                     color: this.form.color

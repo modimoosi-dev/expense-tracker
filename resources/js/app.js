@@ -9,8 +9,9 @@ import dashboardData from './components/dashboard';
 window.Alpine = Alpine;
 window.firebaseDB = db;
 
-// Get CSRF token from meta tag
-window.csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+// Get CSRF token and current user ID from meta tags
+window.csrfToken    = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+window.currentUserId = parseInt(document.querySelector('meta[name="user-id"]')?.getAttribute('content') || '0');
 
 // Global fetch wrapper that includes CSRF token
 window.fetchWithCsrf = function(url, options = {}) {

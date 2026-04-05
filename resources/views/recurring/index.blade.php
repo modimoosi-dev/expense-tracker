@@ -176,7 +176,7 @@ function recurringData() {
             is_active: ''
         },
         form: {
-            user_id: 1,
+            user_id: {{ auth()->id() }},
             category_id: '',
             amount: '',
             type: 'expense',
@@ -194,7 +194,7 @@ function recurringData() {
         },
         async fetchCategories() {
             try {
-                const response = await fetch('/api/v1/categories?user_id=1');
+                const response = await fetch('/api/v1/categories?user_id={{ auth()->id() }}');
                 if (response.ok) {
                     const data = await response.json();
                     this.categories = data.data || data;
@@ -205,7 +205,7 @@ function recurringData() {
         },
         async fetchRecurring() {
             try {
-                let url = '/api/v1/recurring-expenses?user_id=1';
+                let url = '/api/v1/recurring-expenses?user_id={{ auth()->id() }}';
                 if (this.filters.type) url += `&type=${this.filters.type}`;
                 if (this.filters.frequency) url += `&frequency=${this.filters.frequency}`;
                 if (this.filters.is_active !== '') url += `&is_active=${this.filters.is_active}`;
@@ -292,7 +292,7 @@ function recurringData() {
         },
         resetForm() {
             this.form = {
-                user_id: 1,
+                user_id: {{ auth()->id() }},
                 category_id: '',
                 amount: '',
                 type: 'expense',

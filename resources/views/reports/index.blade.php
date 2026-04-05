@@ -121,11 +121,11 @@ function reportsData() {
         async fetchData() {
             try {
                 const [trends, yearly, top, expenseBreak, incomeBreak] = await Promise.all([
-                    fetch('/api/v1/reports/monthly-trends?user_id=1&months=12').then(r => r.json()),
-                    fetch('/api/v1/reports/yearly-comparison?user_id=1').then(r => r.json()),
-                    fetch('/api/v1/reports/top-expenses?user_id=1&limit=5').then(r => r.json()),
-                    fetch('/api/v1/reports/category-breakdown?user_id=1&type=expense').then(r => r.json()),
-                    fetch('/api/v1/reports/category-breakdown?user_id=1&type=income').then(r => r.json())
+                    fetch('/api/v1/reports/monthly-trends?user_id={{ auth()->id() }}&months=12').then(r => r.json()),
+                    fetch('/api/v1/reports/yearly-comparison?user_id={{ auth()->id() }}').then(r => r.json()),
+                    fetch('/api/v1/reports/top-expenses?user_id={{ auth()->id() }}&limit=5').then(r => r.json()),
+                    fetch('/api/v1/reports/category-breakdown?user_id={{ auth()->id() }}&type=expense').then(r => r.json()),
+                    fetch('/api/v1/reports/category-breakdown?user_id={{ auth()->id() }}&type=income').then(r => r.json())
                 ]);
                 this.monthlyTrends = trends;
                 this.yearlyComparison = yearly;
@@ -213,7 +213,7 @@ function reportsData() {
             });
         },
         async exportData() {
-            window.location.href = '/api/v1/reports/export-csv?user_id=1';
+            window.location.href = '/api/v1/reports/export-csv?user_id={{ auth()->id() }}';
         },
         formatCurrency(amount) {
             return window.formatCurrency(amount);
