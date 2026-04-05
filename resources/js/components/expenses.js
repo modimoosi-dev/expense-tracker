@@ -66,7 +66,6 @@ export default function expensesData() {
             }
 
             await this.fetchCategories();
-            await this.fetchExpenses();
             this.filterCategoriesByType();
 
             if (type === 'expense' || type === 'income') {
@@ -74,6 +73,8 @@ export default function expensesData() {
                 this.filterCategoriesByType();
                 this.showModal = true;
             }
+
+            await this.fetchExpenses();
         },
         async fetchExpenses() {
             try {
