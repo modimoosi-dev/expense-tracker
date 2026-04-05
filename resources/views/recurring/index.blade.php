@@ -81,12 +81,16 @@
     </div>
 
     <!-- Form Modal -->
-    <div x-show="showForm" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
-        <div class="flex items-center justify-center min-h-screen px-4">
-            <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="showForm = false"></div>
-            <div class="relative w-full max-w-2xl p-6 bg-white rounded-lg shadow-xl">
-                <h3 class="mb-4 text-xl font-semibold text-gray-900" x-text="form.id ? 'Edit Recurring Transaction' : 'New Recurring Transaction'"></h3>
-                <form @submit.prevent="saveRecurring()">
+    <div x-show="showForm" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style="display: none;">
+        <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="showForm = false"></div>
+        <div class="relative w-full max-w-2xl bg-white rounded-xl shadow-xl flex flex-col" style="max-height: 90vh;">
+            <!-- Header -->
+            <div class="px-6 pt-6 pb-4 border-b border-gray-100 shrink-0">
+                <h3 class="text-xl font-semibold text-gray-900" x-text="form.id ? 'Edit Recurring Transaction' : 'New Recurring Transaction'"></h3>
+            </div>
+            <!-- Scrollable body -->
+            <div class="overflow-y-auto flex-1 px-6 py-4">
+                <form id="recurringForm" @submit.prevent="saveRecurring()">
                     <div class="grid grid-cols-2 gap-4">
                         <div class="col-span-2">
                             <label class="block mb-2 text-sm font-medium text-gray-700">Type</label>
@@ -162,15 +166,16 @@
                             </p>
                         </div>
                     </div>
-                    <div class="flex justify-end gap-3 mt-6">
-                        <button type="button" @click="showForm = false" class="px-4 py-2 text-gray-700 transition-colors bg-gray-200 rounded-lg hover:bg-gray-300">
-                            Cancel
-                        </button>
-                        <button type="submit" class="px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700">
-                            <span x-text="form.id ? 'Update' : 'Create'"></span>
-                        </button>
-                    </div>
                 </form>
+            </div>
+            <!-- Pinned footer -->
+            <div class="px-6 py-4 border-t border-gray-100 shrink-0 flex justify-end gap-3">
+                <button type="button" @click="showForm = false" class="px-4 py-2 text-gray-700 transition-colors bg-gray-200 rounded-lg hover:bg-gray-300">
+                    Cancel
+                </button>
+                <button type="submit" form="recurringForm" class="px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700">
+                    <span x-text="form.id ? 'Update' : 'Create'"></span>
+                </button>
             </div>
         </div>
     </div>
