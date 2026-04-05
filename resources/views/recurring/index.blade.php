@@ -137,8 +137,11 @@
                             <label class="block mb-2 text-sm font-medium text-gray-700">Day of Month (1-31)</label>
                             <input type="number" min="1" max="31" x-model="form.day_of_month" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
-                        <div x-show="form.frequency === 'weekly'" class="col-span-2">
-                            <label class="block mb-2 text-sm font-medium text-gray-700">Days of Week</label>
+                        <div class="col-span-2">
+                            <label class="block mb-1.5 text-sm font-medium text-gray-700">
+                                Active Days
+                                <span class="text-gray-400 font-normal">(optional — leave blank for every day)</span>
+                            </label>
                             <div class="flex flex-wrap gap-2">
                                 <template x-for="(day, idx) in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']" :key="idx">
                                     <label class="cursor-pointer">
@@ -154,7 +157,9 @@
                                     </label>
                                 </template>
                             </div>
-                            <p class="mt-1.5 text-xs text-gray-400">Tap to select one or more days. Mon–Fri = weekdays only.</p>
+                            <p class="mt-1.5 text-xs text-gray-400">
+                                e.g. Mon–Fri for weekday-only transport. Works with any frequency.
+                            </p>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-6">
