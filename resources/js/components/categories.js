@@ -27,9 +27,31 @@ export default function categoriesData() {
                     id: doc.id,
                     ...doc.data()
                 }));
+                if (this.categories.length === 0 && this.filterType === 'all') {
+                    await this.seedDefaultCategories();
+                }
             } catch (error) {
                 console.error('Error fetching categories:', error);
             }
+        },
+        async seedDefaultCategories() {
+            const uid = window.currentUserId;
+            const defaults = [
+                { name: 'Food & Dining',    type: 'expense', color: '#f97316', icon: '🍽️' },
+                { name: 'Transport',        type: 'expense', color: '#3b82f6', icon: '🚗' },
+                { name: 'Shopping',         type: 'expense', color: '#ec4899', icon: '🛍️' },
+                { name: 'Utilities',        type: 'expense', color: '#8b5cf6', icon: '💡' },
+                { name: 'Health',           type: 'expense', color: '#ef4444', icon: '🏥' },
+                { name: 'Entertainment',    type: 'expense', color: '#06b6d4', icon: '🎬' },
+                { name: 'Education',        type: 'expense', color: '#10b981', icon: '📚' },
+                { name: 'Housing',          type: 'expense', color: '#6366f1', icon: '🏠' },
+                { name: 'Salary',           type: 'income',  color: '#22c55e', icon: '💼' },
+                { name: 'Freelance',        type: 'income',  color: '#84cc16', icon: '💻' },
+                { name: 'Business',         type: 'income',  color: '#eab308', icon: '🏢' },
+                { name: 'Other Income',     type: 'income',  color: '#14b8a6', icon: '💰' },
+            ];
+            await Promise.all(defaults.map(cat => addDoc(collection(db, 'categories'), { ...cat, user_id: uid })));
+            await this.fetchCategories();
         },
         openModal() {
             this.showModal = true;

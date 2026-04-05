@@ -134,8 +134,15 @@
             <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"></path>
             </svg>
-            <p class="text-lg font-medium">No transactions found</p>
-            <p class="text-sm">Add your first transaction to get started</p>
+            <p class="text-lg font-medium text-gray-700">No transactions yet</p>
+            <p class="text-sm mt-1 mb-4">Tap "Add Transaction" above to record your first one.</p>
+            <a href="{{ route('categories.index') }}"
+               class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 text-sm font-medium rounded-lg hover:bg-indigo-100 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+                Manage Categories
+            </a>
         </div>
 
         <!-- Pagination -->
@@ -384,6 +391,13 @@
                             <option :value="category.id" x-text="category.name"></option>
                         </template>
                     </select>
+                    <div x-show="filteredCategories.length === 0" class="mt-2 flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        No categories yet.
+                        <a href="{{ route('categories.index') }}" class="font-semibold underline hover:text-amber-900">Create one first →</a>
+                    </div>
                 </div>
 
                 <div class="mb-4">
