@@ -148,9 +148,9 @@
                                 <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
                             </div>
                         </a>
-                        <form method="POST" action="{{ route('logout') }}">
+                        <form method="POST" action="{{ route('logout') }}" id="logout-form-desktop">
                             @csrf
-                            <button type="submit" class="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Logout">
+                            <button type="button" onclick="handleLogout('logout-form-desktop')" class="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Logout">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                                 </svg>
@@ -180,9 +180,9 @@
                                  class="w-8 h-8 rounded-full object-cover ring-2 ring-indigo-200"
                                  :alt="userName">
                         </a>
-                        <form method="POST" action="{{ route('logout') }}">
+                        <form method="POST" action="{{ route('logout') }}" id="logout-form-mobile">
                             @csrf
-                            <button type="submit" class="p-2 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800 rounded-lg" title="Logout">
+                            <button type="button" onclick="handleLogout('logout-form-mobile')" class="p-2 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800 rounded-lg" title="Logout">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                                 </svg>
@@ -420,6 +420,22 @@
                 }
             }
         }
+    }
+    </script>
+    <script>
+    async function handleLogout(formId) {
+        // On native, sign out of Firebase/Google before submitting the Laravel logout form
+        if (window.Capacitor?.isNativePlatform()) {
+            try {
+                const FirebaseAuthentication = window.Capacitor?.Plugins?.FirebaseAuthentication;
+                if (FirebaseAuthentication) {
+                    await FirebaseAuthentication.signOut();
+                }
+            } catch (e) {
+                console.warn('Firebase sign-out error:', e);
+            }
+        }
+        document.getElementById(formId).submit();
     }
     </script>
 </body>
