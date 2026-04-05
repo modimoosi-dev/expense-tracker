@@ -71,7 +71,7 @@
         <!-- Expenses by Category -->
         <div class="p-5 bg-white rounded-2xl shadow-modern">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-base font-bold text-gray-800">Expenses by Category</h3>
+                <h3 class="text-base font-bold text-gray-800">Spending by Category</h3>
                 <select x-model="categoryPeriod" @change="redrawPie()"
                         class="text-xs font-medium text-red-600 bg-red-50 border-0 rounded-full px-2.5 py-1 focus:ring-2 focus:ring-red-300 cursor-pointer">
                     <option value="all">All Time</option>

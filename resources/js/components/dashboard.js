@@ -240,9 +240,18 @@ export default function dashboardData() {
             const isDark    = document.documentElement.classList.contains('dark');
             const textColor = isDark ? '#9ca3af' : '#6b7280';
 
+            // Fallback palette when categories have no color set
+            const palette = [
+                '#6366f1','#f97316','#10b981','#ef4444','#3b82f6',
+                '#ec4899','#8b5cf6','#eab308','#06b6d4','#84cc16',
+                '#f43f5e','#14b8a6',
+            ];
+
             const labels   = this.stats.expenses_by_category.map(i => i.category.name);
             const data     = this.stats.expenses_by_category.map(i => i.total);
-            const bgColors = this.stats.expenses_by_category.map(i => i.category.color);
+            const bgColors = this.stats.expenses_by_category.map((i, idx) =>
+                i.category.color && i.category.color !== '#ccc' ? i.category.color : palette[idx % palette.length]
+            );
 
             this.pieChart = new Chart(canvas.getContext('2d'), {
                 type: 'doughnut',
