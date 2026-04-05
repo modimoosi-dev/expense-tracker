@@ -40,18 +40,20 @@ class RecurringExpenseController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'category_id' => 'required|exists:categories,id',
-            'amount' => 'required|numeric|min:0.01',
-            'type' => 'required|in:income,expense',
-            'description' => 'nullable|string|max:500',
-            'payment_method' => 'nullable|string|max:100',
-            'frequency' => 'required|in:daily,weekly,monthly,yearly',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after:start_date',
-            'day_of_month' => 'nullable|integer|min:1|max:31',
-            'day_of_week' => 'nullable|integer|min:0|max:6',
-            'is_active' => 'boolean'
+            'user_id'       => 'required|exists:users,id',
+            'category_id'   => 'nullable|string|max:128',
+            'amount'        => 'required|numeric|min:0.01',
+            'type'          => 'required|in:income,expense',
+            'description'   => 'nullable|string|max:500',
+            'payment_method'=> 'nullable|string|max:100',
+            'frequency'     => 'required|in:daily,weekly,monthly,yearly',
+            'start_date'    => 'required|date',
+            'end_date'      => 'nullable|date|after:start_date',
+            'day_of_month'  => 'nullable|integer|min:1|max:31',
+            'day_of_week'   => 'nullable|integer|min:0|max:6',
+            'days_of_week'  => 'nullable|array',
+            'days_of_week.*'=> 'integer|min:0|max:6',
+            'is_active'     => 'boolean',
         ]);
 
         $recurringExpense = RecurringExpense::create($validated);
@@ -73,17 +75,19 @@ class RecurringExpenseController extends Controller
     public function update(Request $request, RecurringExpense $recurringExpense): JsonResponse
     {
         $validated = $request->validate([
-            'category_id' => 'sometimes|exists:categories,id',
-            'amount' => 'sometimes|numeric|min:0.01',
-            'type' => 'sometimes|in:income,expense',
-            'description' => 'nullable|string|max:500',
-            'payment_method' => 'nullable|string|max:100',
-            'frequency' => 'sometimes|in:daily,weekly,monthly,yearly',
-            'start_date' => 'sometimes|date',
-            'end_date' => 'nullable|date|after:start_date',
-            'day_of_month' => 'nullable|integer|min:1|max:31',
-            'day_of_week' => 'nullable|integer|min:0|max:6',
-            'is_active' => 'boolean'
+            'category_id'   => 'nullable|string|max:128',
+            'amount'        => 'sometimes|numeric|min:0.01',
+            'type'          => 'sometimes|in:income,expense',
+            'description'   => 'nullable|string|max:500',
+            'payment_method'=> 'nullable|string|max:100',
+            'frequency'     => 'sometimes|in:daily,weekly,monthly,yearly',
+            'start_date'    => 'sometimes|date',
+            'end_date'      => 'nullable|date|after:start_date',
+            'day_of_month'  => 'nullable|integer|min:1|max:31',
+            'day_of_week'   => 'nullable|integer|min:0|max:6',
+            'days_of_week'  => 'nullable|array',
+            'days_of_week.*'=> 'integer|min:0|max:6',
+            'is_active'     => 'boolean',
         ]);
 
         $recurringExpense->update($validated);

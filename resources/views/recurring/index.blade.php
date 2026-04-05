@@ -137,17 +137,24 @@
                             <label class="block mb-2 text-sm font-medium text-gray-700">Day of Month (1-31)</label>
                             <input type="number" min="1" max="31" x-model="form.day_of_month" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
-                        <div x-show="form.frequency === 'weekly'">
-                            <label class="block mb-2 text-sm font-medium text-gray-700">Day of Week</label>
-                            <select x-model="form.day_of_week" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="0">Sunday</option>
-                                <option value="1">Monday</option>
-                                <option value="2">Tuesday</option>
-                                <option value="3">Wednesday</option>
-                                <option value="4">Thursday</option>
-                                <option value="5">Friday</option>
-                                <option value="6">Saturday</option>
-                            </select>
+                        <div x-show="form.frequency === 'weekly'" class="col-span-2">
+                            <label class="block mb-2 text-sm font-medium text-gray-700">Days of Week</label>
+                            <div class="flex flex-wrap gap-2">
+                                <template x-for="(day, idx) in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']" :key="idx">
+                                    <label class="cursor-pointer">
+                                        <input type="checkbox" class="sr-only"
+                                               :value="idx"
+                                               :checked="form.days_of_week.includes(idx)"
+                                               @change="toggleDay(idx)">
+                                        <span class="inline-block px-3 py-1.5 rounded-lg text-sm font-semibold border-2 transition-colors"
+                                              :class="form.days_of_week.includes(idx)
+                                                ? 'bg-blue-600 border-blue-600 text-white'
+                                                : 'bg-white border-gray-300 text-gray-600 hover:border-blue-400'"
+                                              x-text="day"></span>
+                                    </label>
+                                </template>
+                            </div>
+                            <p class="mt-1.5 text-xs text-gray-400">Tap to select one or more days. Mon–Fri = weekdays only.</p>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-6">
@@ -186,7 +193,8 @@ function recurringData() {
             start_date: '',
             end_date: '',
             day_of_month: null,
-            day_of_week: null
+            day_of_week: null,
+            days_of_week: []
         },
         async init() {
             await this.fetchCategories();
@@ -242,7 +250,7 @@ function recurringData() {
             }
         },
         editRecurring(item) {
-            this.form = { ...item };
+            this.form = { ...item, days_of_week: Array.isArray(item.days_of_week) ? item.days_of_week : [] };
             this.showForm = true;
         },
         async deleteRecurring(id) {
@@ -286,6 +294,11 @@ function recurringData() {
                 console.error('Error generating expense:', error);
             }
         },
+        toggleDay(idx) {
+            const pos = this.form.days_of_week.indexOf(idx);
+            if (pos === -1) this.form.days_of_week.push(idx);
+            else this.form.days_of_week.splice(pos, 1);
+        },
         resetForm() {
             this.form = {
                 user_id: {{ auth()->id() }},
@@ -298,7 +311,8 @@ function recurringData() {
                 start_date: '',
                 end_date: '',
                 day_of_month: null,
-                day_of_week: null
+                day_of_week: null,
+                days_of_week: []
             };
         },
         getNextRunDate(item) {

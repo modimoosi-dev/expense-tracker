@@ -20,6 +20,7 @@ class RecurringExpense extends Model
         'last_generated',
         'day_of_month',
         'day_of_week',
+        'days_of_week',
         'is_active',
     ];
 
@@ -29,6 +30,7 @@ class RecurringExpense extends Model
         'end_date' => 'date',
         'last_generated' => 'date',
         'is_active' => 'boolean',
+        'days_of_week' => 'array',
     ];
 
     public function user(): BelongsTo

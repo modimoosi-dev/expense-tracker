@@ -153,29 +153,23 @@ export default function dashboardData() {
             });
 
             this.lineChart = new Chart(canvas.getContext('2d'), {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels,
                     datasets: [
                         {
                             label: 'Income',
                             data: sortedDates.map(d => dailyData[d].income),
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16,185,129,0.08)',
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 3,
-                            pointBackgroundColor: '#10b981'
+                            backgroundColor: 'rgba(16,185,129,0.8)',
+                            borderRadius: 4,
+                            borderSkipped: false,
                         },
                         {
                             label: 'Expense',
                             data: sortedDates.map(d => dailyData[d].expense),
-                            borderColor: '#ef4444',
-                            backgroundColor: 'rgba(239,68,68,0.08)',
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 3,
-                            pointBackgroundColor: '#ef4444'
+                            backgroundColor: 'rgba(239,68,68,0.8)',
+                            borderRadius: 4,
+                            borderSkipped: false,
                         }
                     ]
                 },
@@ -186,12 +180,17 @@ export default function dashboardData() {
                         legend: {
                             position: 'top',
                             labels: { color: textColor, boxWidth: 12, padding: 12, font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ` ${ctx.dataset.label}: ${window.formatCurrency ? window.formatCurrency(ctx.raw) : ctx.raw}`
+                            }
                         }
                     },
                     scales: {
                         x: {
-                            ticks: { color: textColor, font: { size: 10 }, maxTicksLimit: 8 },
-                            grid: { color: gridColor }
+                            ticks: { color: textColor, font: { size: 10 }, maxTicksLimit: 10 },
+                            grid: { display: false }
                         },
                         y: {
                             beginAtZero: true,
