@@ -81,9 +81,9 @@
     </div>
 
     <!-- Form Modal -->
-    <div x-show="showForm" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style="display: none;">
+    <div x-show="showForm" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pt-4 pb-20 sm:pb-4" style="display: none;">
         <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="showForm = false"></div>
-        <div class="relative w-full max-w-2xl bg-white rounded-xl shadow-xl flex flex-col" style="max-height: 90vh;">
+        <div class="relative w-full max-w-2xl bg-white rounded-xl shadow-xl flex flex-col" style="max-height: calc(100vh - 5rem);">
             <!-- Header -->
             <div class="px-6 pt-6 pb-4 border-b border-gray-100 shrink-0">
                 <h3 class="text-xl font-semibold text-gray-900" x-text="form.id ? 'Edit Recurring Transaction' : 'New Recurring Transaction'"></h3>
