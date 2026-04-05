@@ -15,7 +15,7 @@ export default function dashboardData() {
         recentTransactions: [],
         allExpenses: [],
         allCategories: [],
-        cashflowPeriod: 'daily',
+        cashflowPeriod: 'monthly',
         categoryPeriod: 'all',
         pieChart: null,
         lineChart: null,

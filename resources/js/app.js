@@ -1,7 +1,7 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
 import { db } from './firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, addDoc } from 'firebase/firestore';
 import categoriesData from './components/categories';
 import expensesData from './components/expenses';
 import budgetsData from './components/budgets';
@@ -51,6 +51,15 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
     });
 }
+
+// Global helper — add an expense to Firestore
+window.addFirestoreExpense = async function(data) {
+    const docRef = await addDoc(collection(db, 'expenses'), {
+        user_id: window.currentUserId,
+        ...data,
+    });
+    return docRef.id;
+};
 
 // Global helper — fetch current user's categories from Firestore
 window.getUserCategories = async function(type = null) {

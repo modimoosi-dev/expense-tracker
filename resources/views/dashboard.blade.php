@@ -60,7 +60,7 @@
                         class="text-xs font-medium text-indigo-600 bg-indigo-50 border-0 rounded-full px-2.5 py-1 focus:ring-2 focus:ring-indigo-400 cursor-pointer">
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
+                    <option value="monthly" selected>Monthly</option>
                 </select>
             </div>
             <div class="relative w-full h-52">

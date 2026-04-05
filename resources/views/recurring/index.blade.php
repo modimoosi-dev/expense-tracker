@@ -293,15 +293,22 @@ function recurringData() {
             if (!confirm('Generate an expense from this recurring transaction now?')) return;
 
             try {
-                const response = await window.fetchWithCsrf(`/api/v1/recurring-expenses/${item.id}/generate`, {
-                    method: 'POST'
+                const today = new Date().toISOString().split('T')[0];
+                await window.addFirestoreExpense({
+                    category_id: item.category_id || '',
+                    amount: parseFloat(item.amount),
+                    type: item.type,
+                    description: (item.description || '') + ' (Auto-generated)',
+                    date: today,
+                    payment_method: item.payment_method || '',
                 });
-                if (response.ok) {
-                    alert('Expense generated successfully!');
-                    await this.fetchRecurring();
-                }
+                // Also update last_generated on the server
+                await window.fetchWithCsrf(`/api/v1/recurring-expenses/${item.id}/generate`, { method: 'POST' });
+                alert('Expense generated successfully!');
+                await this.fetchRecurring();
             } catch (error) {
                 console.error('Error generating expense:', error);
+                alert('Failed to generate expense.');
             }
         },
         toggleDay(idx) {
