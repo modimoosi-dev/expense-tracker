@@ -52,11 +52,16 @@
 
     <!-- Charts Row -->
     <div class="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-2">
-        <!-- Daily Cashflow -->
+        <!-- Cashflow Chart -->
         <div class="p-5 bg-white rounded-2xl shadow-modern">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-base font-bold text-gray-800">Daily Cashflow</h3>
-                <span class="px-2.5 py-1 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-full">This Month</span>
+                <h3 class="text-base font-bold text-gray-800">Cashflow</h3>
+                <select x-model="cashflowPeriod" @change="redrawCashflow()"
+                        class="text-xs font-medium text-indigo-600 bg-indigo-50 border-0 rounded-full px-2.5 py-1 focus:ring-2 focus:ring-indigo-400 cursor-pointer">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
             </div>
             <div class="relative w-full h-52">
                 <canvas id="cashflowLineChart"></canvas>
@@ -67,7 +72,12 @@
         <div class="p-5 bg-white rounded-2xl shadow-modern">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-base font-bold text-gray-800">Expenses by Category</h3>
-                <span class="px-2.5 py-1 text-xs font-medium text-red-600 bg-red-50 rounded-full">All Time</span>
+                <select x-model="categoryPeriod" @change="redrawPie()"
+                        class="text-xs font-medium text-red-600 bg-red-50 border-0 rounded-full px-2.5 py-1 focus:ring-2 focus:ring-red-300 cursor-pointer">
+                    <option value="all">All Time</option>
+                    <option value="month">This Month</option>
+                    <option value="week">This Week</option>
+                </select>
             </div>
             <div class="relative w-full h-64">
                 <canvas id="expensesPieChart"></canvas>
