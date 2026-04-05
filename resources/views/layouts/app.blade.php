@@ -94,6 +94,39 @@
                         </svg>
                         Settings
                     </a>
+
+                    <!-- Quick Actions (mobile only) -->
+                    <div class="lg:hidden mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Quick Actions</p>
+                        <a href="{{ route('expenses.index') }}?type=expense" @click="sidebarOpen = false"
+                           class="flex items-center px-4 py-2.5 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-red-50 dark:hover:bg-gray-800 hover:text-red-600 transition-all">
+                            <span class="w-7 h-7 mr-3 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                            </span>
+                            Add Expense
+                        </a>
+                        <a href="{{ route('expenses.index') }}?type=income" @click="sidebarOpen = false"
+                           class="flex items-center px-4 py-2.5 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-green-50 dark:hover:bg-gray-800 hover:text-green-600 transition-all">
+                            <span class="w-7 h-7 mr-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            </span>
+                            Add Income
+                        </a>
+                        <a href="{{ route('expenses.index') }}?import=statement" @click="sidebarOpen = false"
+                           class="flex items-center px-4 py-2.5 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-orange-50 dark:hover:bg-gray-800 hover:text-orange-600 transition-all">
+                            <span class="w-7 h-7 mr-3 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            </span>
+                            Import Statement
+                        </a>
+                        <a href="{{ route('recurring.index') }}" @click="sidebarOpen = false"
+                           class="flex items-center px-4 py-2.5 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-purple-50 dark:hover:bg-gray-800 hover:text-purple-600 transition-all">
+                            <span class="w-7 h-7 mr-3 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            </span>
+                            Recurring
+                        </a>
+                    </div>
                 </nav>
             </div>
         </aside>

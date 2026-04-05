@@ -50,55 +50,6 @@
         </div>
     </div>
 
-    <!-- Quick Actions — 5 buttons -->
-    <div class="grid grid-cols-3 gap-3 mb-6 sm:grid-cols-5">
-        <a href="{{ route('expenses.index') }}?type=expense"
-           class="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-red-200 hover:shadow-md transition-all">
-            <div class="p-2.5 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl group-hover:scale-110 transition-transform">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                </svg>
-            </div>
-            <span class="text-xs font-semibold text-gray-700 group-hover:text-red-600 transition-colors">Add Expense</span>
-        </a>
-        <a href="{{ route('expenses.index') }}?type=income"
-           class="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-green-200 hover:shadow-md transition-all">
-            <div class="p-2.5 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl group-hover:scale-110 transition-transform">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-            </div>
-            <span class="text-xs font-semibold text-gray-700 group-hover:text-green-600 transition-colors">Add Income</span>
-        </a>
-        <a href="{{ route('expenses.index') }}"
-           class="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-indigo-200 hover:shadow-md transition-all">
-            <div class="p-2.5 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl group-hover:scale-110 transition-transform">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                </svg>
-            </div>
-            <span class="text-xs font-semibold text-gray-700 group-hover:text-indigo-600 transition-colors">All Trans.</span>
-        </a>
-        <a href="{{ route('recurring.index') }}"
-           class="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-purple-200 hover:shadow-md transition-all">
-            <div class="p-2.5 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl group-hover:scale-110 transition-transform">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-            </div>
-            <span class="text-xs font-semibold text-gray-700 group-hover:text-purple-600 transition-colors">Recurring</span>
-        </a>
-        <a href="{{ route('expenses.index') }}?import=statement"
-           class="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-orange-200 hover:shadow-md transition-all">
-            <div class="p-2.5 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl group-hover:scale-110 transition-transform">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-            </div>
-            <span class="text-xs font-semibold text-gray-700 group-hover:text-orange-600 transition-colors">Import</span>
-        </a>
-    </div>
-
     <!-- Charts Row -->
     <div class="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-2">
         <!-- Daily Cashflow -->
